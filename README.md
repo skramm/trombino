@@ -16,10 +16,11 @@ Calibré pour des groupes de 5-16 personnes par page.
 
 ## Paramétrage
 * éditer le fichier `header.tex` pour y mettre le nom de l'établissement, l'année, etc.
-* c'est tout...
+* éditer le fichier `s2_create_trombi.sh` pour modifier le nom du fichier de sortie
+* si besoin de modifier le nb de colonnes, c'est également dans ce fichier que ça se passe.
 
 ## Fonctionnement
-
+,
 Le programme est découpé en 2 scripts bash, qu'il faut appeler successivement.
 * `s1_create_pair_file.sh`: va générer un fichier contenant l'association photo-nom, qui va servir d'entrée au 2è programme.
 * `s2_create_trombi.sh`: va générer le fichier LaTeX (stocké dans `BUILD`), et appelle le compilateur `pdflatex` pour générer le pdf.
