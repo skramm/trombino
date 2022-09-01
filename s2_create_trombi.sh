@@ -6,7 +6,7 @@
 # le fichier d'entrée doit être trié par groupe
 
 
-nb_lines=4
+#nb_lines=4
 nb_cols=4
 
 count_lines=0
@@ -27,12 +27,14 @@ function close_page
 		return;
 	fi
 	echo "func: close_page"
-	if ! $line_is_closed ; then
+	if ! $line_is_closed ;
+	then
 		echo "\\\ \hline" >>$outfile
 	fi
 	echo "\end{tabularx}" >>$outfile
 	echo "" >>$outfile
 	echo "\clearpage" >>$outfile
+	line_is_closed=true
 	table_is_closed=true;
 }
 function reset_all
@@ -88,12 +90,6 @@ function process_line
 
 	fi
 
-#	if [ "$count_lines" -eq "$nb_lines" ]; then
-#		(( count_pages += 1 ))
-#		count_lines=0
-#		close_page
-#		echo
-#	fi
 	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
 }
 
@@ -109,7 +105,7 @@ if [ ! -f "$header_file" ]; then
 fi
 
 cat $header_file >$outfile
-echo "\graphicspath{ {$photos} }">>$outfile
+echo "\graphicspath{ {../$photos} }">>$outfile
 
 
 IFS=,
