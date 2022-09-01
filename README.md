@@ -1,14 +1,22 @@
 # trombino
-Génération de trombinoscope
+Génération de trombinoscope.
+
+Calibré pour des groupes de 5-16 personnes par page.
+
+![exemple](trombi_1_800.jpg)
+
 
 ## Outils nécessaires
 * bash
 * LaTeX
 
 ## Données d'entrées
-* une liste en CSV contenant sur 3 champs: groupe, Nom, Prénom
-* un dossier contenant les photos, dans l'ordre de la liste
+* une liste en CSV contenant sur 3 champs: Groupe, Nom, Prénom, à coller dans le dossier racine, avec le nom `liste.csv`
+* copier dans le dossier `photos` les photos, dans l'ordre de la liste.
 
+## Paramétrage
+* éditer le fichier `header.tex` pour y mettre le nom de l'établissement, l'année, etc.
+* 
 
 ## Fonctionnement
 
