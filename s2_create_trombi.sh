@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# S. Kramm - sept 2016 - 2018
+# S. Kramm - sept 2016 - 2022
+# https://github.com/skramm/trombino
 # création automatique de trombinoscope
+
+# part 2: génération du fichier source Latex et compilation en pdf
 
 # le fichier d'entrée doit être trié par groupe
 
@@ -14,7 +17,7 @@ count_cols=0
 count_pages=0
 
 current_group=nogroup
-outfile=BUILD/trombi_BUT1_2022-2023.tex
+outfile=BUILD/trombi_PROMO_ANNEE.tex
 photos=photos/
 
 header_file=trombi_header.tex
@@ -105,7 +108,7 @@ if [ ! -f "$header_file" ]; then
 fi
 
 cat $header_file >$outfile
-echo "\graphicspath{ {../$photos} }">>$outfile
+echo "\graphicspath{ {$photos} }">>$outfile
 
 
 IFS=,
