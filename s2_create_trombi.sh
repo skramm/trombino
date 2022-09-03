@@ -17,7 +17,7 @@ count_cols=0
 count_pages=0
 
 current_group=nogroup
-outfile=BUILD/trombi_PROMO_ANNEE.tex
+outfile=BUILD/trombi.tex
 photos=photos/
 
 header_file=trombi_header.tex
@@ -106,6 +106,12 @@ if [ ! -f "$header_file" ]; then
     echo "Error: header file not found, exiting..."
 	exit
 fi
+
+if [ "$1" != "" ]; then
+	outfile=BUILD/$1.tex
+fi
+echo "output file name: $outfile"
+
 
 cat $header_file >$outfile
 echo "\graphicspath{ {$photos} }">>$outfile
