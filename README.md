@@ -13,13 +13,15 @@ Calibré pour des groupes de 5-16 personnes par page, pour une année d'une prom
 
 ## Outils nécessaires
 * bash
-* LaTeX
+* LaTeX, avec le package `tabularx`
 
 ## Utilisation
 
-Il faut avoir une liste des personnes, et prendre une photo par personne, **dans l'ordre de la liste**. Ensuite, un petit traitement batch des photos peut être pertinent (recadrage, augmentation de la luminosité, conversion en N&B, etc).
+Il faut avoir une liste des personnes, et prendre une photo par personne, **dans l'ordre de la liste**.
+En cas d'absence, il faut prendre une photo "vide", pour conserver l'ordre.
 
-Tout ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.org/).
+Ensuite, un petit traitement batch des photos peut être pertinent (recadrage, augmentation de la luminosité, conversion en N&B, etc).
+Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.org/).
 
 
 ## Données d'entrées

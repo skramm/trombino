@@ -17,7 +17,8 @@ count_cols=0
 count_pages=0
 
 current_group=nogroup
-outfile=BUILD/trombi.tex
+outfile1=trombi
+outfile=BUILD/$outfile1.tex
 photos=photos/
 
 header_file=trombi_header.tex
@@ -30,8 +31,15 @@ function close_page
 		return;
 	fi
 	echo "func: close_page"
+
+	(( count_cols+=1 ))
 	if ! $line_is_closed ;
 	then
+		while [ $count_cols != $nb_cols ]
+		do
+			echo "&" >>$outfile
+			(( count_cols+=1 ))
+		done
 		echo "\\\ \hline" >>$outfile
 	fi
 	echo "\end{tabularx}" >>$outfile
@@ -79,10 +87,10 @@ function process_line
 	line_is_closed=false
 
 	photo="${1%.*}"
-	echo "photo=$photo"
 	echo "\includegraphics[width=36mm]{$photo} \newline" >>$outfile
 	echo "$3 $4 $5" >>$outfile
 	(( count_cols += 1 ))
+
 	if [ "$count_cols" -eq "$nb_cols" ]; then
 		echo "\\\ \hline" >>$outfile
 		line_is_closed=true
@@ -114,7 +122,7 @@ echo "output file name: $outfile"
 
 
 cat $header_file >$outfile
-echo "\graphicspath{ {$photos} }">>$outfile
+echo "\graphicspath{ {../$photos/} }">>$outfile
 
 
 IFS=,
@@ -139,11 +147,16 @@ fi
 echo "" >>$outfile
 echo "\end{document}" >>$outfile
 
-#set -x
-#cd BUILD
+cd BUILD
 echo "start pdflatex"
-pdflatex -interaction=batchmode $outfile 1>BUILD/pdflatex.stdout 2>BUILD/spdflatex.stderr
-#cd ..
+pdflatex -interaction=batchmode $outfile1 1>pdflatex.stdout 2>pdflatex.stderr
+if [ $? != 0 ]; then
+	echo "Echec, erreur à la compilation, voir fichier log"
+else
+	echo "Succès!"
+	mv $outfile1.pdf ..
+fi
+cd ..
 
 
 # ----------------------------------------------------------------------------
