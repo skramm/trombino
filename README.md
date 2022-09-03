@@ -31,6 +31,8 @@ Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.o
 * une liste en CSV contenant sur 3 champs: Groupe, Nom, Prénom, à coller dans le dossier racine, avec le nom `liste.csv`
 * copier dans le dossier `photos` les photos, dans l'ordre de la liste.
 
+Attention, il doit y avoir autant de photos que de lignes dans le fichier d'entrée!
+
 ## Paramétrage
 * éditer le fichier `trombi_header.tex` pour y mettre le nom de l'établissement, l'année, etc.
 
@@ -38,12 +40,15 @@ Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.o
 
 Syntaxe:
 
-On peut changer le nom du fichier d'entrée et/ou le dossier où se trouve les photos et/ou le nom du fichier pdf généré.
-
-Attention, il doit y avoir autant de photos que de lignes dans le fichier d'entrée!
+Des valeurs par défaut sont prévues, mais on peut passer des options pour les modifier.
 
 `$ ./trombino.sh [-l fichier_liste] [-p dossier_photos] [-o nom_pdf] [-c nb_cols]`
 
+* `-l`: pour spécifier un autre nom du fichier "liste"
+* `-p`: pour indiquer un autre dossier pour les photos
+* `-o`: pour donner un autre nom au fichier pdf généré
+* `-c`: pour  modifier le nombre de colonnes
+ 
 Attention, si trop de colonnes, on aura une erreur de compilation LaTeX, mais le fichier de sortie devrait être généré quand même.
 
 ## Exemple/demo
@@ -56,12 +61,9 @@ Il y a:
 Ces avatars sont générés via le script `gen_avatars.sh` (requires Imagemagick)
 
 Tapez la commande suivante dans le dossier racine, une fois le repo cloné:
-
 ```
 $ ./trombino.sh
 ```
-
 Ceci doit vous donner dans un fichier `trombi.pdf`, similaire à celui qui est fourni (`trombi_exemple.pdf`).
-
 
 
