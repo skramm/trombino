@@ -1,15 +1,15 @@
-# trombino
-Génération de trombinoscope automatique,
+# Trombino
+Génération de trombinoscope en pdf automatique, à partir d'une liste et d'un ensemble de photos.
 
 * auteur: Sebastien Kramm
-* statut: quasi-pret ! (2022-09-02)
+* statut: stabilisé en v1 (2022-09-03)
 * home page: https://github.com/skramm/trombino
 * licence: [WTFPL](https://en.wikipedia.org/wiki/WTFPL)
 
 Calibré pour des groupes de 5-16 personnes par page, pour une année d'une promo de type universitaire (20-100 ou plus personnes).
 
 
-## Exemple de résultat
+## Exemple de résultat (réel)
 
 ![exemple](trombi_1_800.jpg)
 
@@ -23,12 +23,13 @@ Calibré pour des groupes de 5-16 personnes par page, pour une année d'une prom
 Il faut avoir une liste des personnes, et prendre une photo par personne, **dans l'ordre de la liste**.
 En cas d'absence, il faut prendre une photo "vide", pour conserver l'ordre.
 
-Ensuite, un petit traitement batch des photos peut être pertinent (recadrage, augmentation de la luminosité, conversion en N&B, etc).
+Ensuite, un petit traitement batch des photos est probablement nécessaire (recadrage, augmentation de la luminosité, conversion en N&B, etc).
 Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.org/).
+Dans l'idéal, il faudrait avoir des photos de quelques dizaines de ko.
 
 
-## Données d'entrées
-* une liste en CSV contenant sur 3 champs: Groupe, Nom, Prénom, à coller dans le dossier racine, avec le nom `liste.csv`
+## Données d'entrées du script
+* une liste en CSV contenant sur 3 champs: Groupe, Nom, Prénom, à coller dans le dossier racine
 * copier dans le dossier `photos` les photos, dans l'ordre de la liste.
 
 Attention, il doit y avoir autant de photos que de lignes dans le fichier d'entrée!
@@ -36,9 +37,7 @@ Attention, il doit y avoir autant de photos que de lignes dans le fichier d'entr
 ## Paramétrage
 * éditer le fichier `trombi_header.tex` pour y mettre le nom de l'établissement, l'année, etc.
 
-## Fonctionnement
-
-Syntaxe:
+## Syntaxe d'appel
 
 Des valeurs par défaut sont prévues, mais on peut passer des options pour les modifier.
 
@@ -46,7 +45,7 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 
 * `-l`: pour spécifier un autre nom du fichier "liste"
 * `-p`: pour indiquer un autre dossier pour les photos
-* `-o`: pour donner un autre nom au fichier pdf généré
+* `-o`: pour donner un autre nom au fichier pdf généré (sans extension!!)
 * `-c`: pour  modifier le nombre de colonnes
  
 Attention, si trop de colonnes, on aura une erreur de compilation LaTeX, mais le fichier de sortie devrait être généré quand même.

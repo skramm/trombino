@@ -171,6 +171,8 @@ then
 fi
 echo " -Lecture de $n1 personnes & photos"
 
+echo "* Etape 1: génération fichiers intermédiaires"
+
 # merge photos + noms/groupes
 paste --delimiters="," BUILD/list_photos.txt $input_file > BUILD/global_list_1.csv
 
@@ -188,8 +190,6 @@ if [ ! -f "$header_file" ]; then
     echo " -Erreur: fichier d'en-tête introuvale"
 	exit
 fi
-
-echo " -Nom fichier de sortie: $outfile1.pdf"
 
 cat $header_file >$outfile
 echo "\graphicspath{ {../$photos/} }">>$outfile
@@ -216,7 +216,7 @@ echo "" >>$outfile
 echo "\end{document}" >>$outfile
 
 cd BUILD
-echo "- Etape 3: start pdflatex"
+echo "* Etape 2: start pdflatex"
 pdflatex -interaction=batchmode $outfile1 1>pdflatex.stdout 2>pdflatex.stderr
 if [ $? != 0 ]; then
 	echo " -Erreur de compilation, voir fichier log"
