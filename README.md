@@ -39,7 +39,7 @@ Il y a
 
 * une liste de noms (thx: https://fossbytes.com/tools/random-name-generator)
 * une liste de "photos" (thx: https://multiavatar.com/)
-Ces avatars sont générés via le script `gen_avatars.sh`
+Ces avatars sont générés via le script `gen_avatars.sh` (requires Imagemagick)
 
 
 
