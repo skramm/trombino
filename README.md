@@ -30,31 +30,23 @@ Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.o
 
 ## Paramétrage
 * éditer le fichier `trombi_header.tex` pour y mettre le nom de l'établissement, l'année, etc.
-* éditer le fichier `s2_create_trombi.sh` pour modifier le nom du fichier de sortie
-* si besoin de modifier le nb de colonnes, c'est également dans ce fichier que ça se passe.
 
 ## Fonctionnement
 
-Le programme est découpé en 2 scripts bash, qu'il faut appeler successivement.
-
-* `s1_create_pair_file.sh`: va générer un fichier contenant l'association photo-nom, qui va servir d'entrée au 2è programme.
-Par défaut, il utilise comme fichier d'entrée `liste.csv` mais on peut passer un autre nom de fichier en argument.
-* `s2_create_trombi.sh`: va générer le fichier LaTeX (stocké dans `BUILD`), et appelle le compilateur `pdflatex` pour générer le pdf.
-Le nom du fichier pdf généré est par défaut `trombi.pdf` mais on peut passer un autre nom en argument (sans l'extension!).
-
-
 Syntaxe:
 
-On peut changer le nom du fichier d'entrée et/ou le dossier où se trouve les photos.
-Attention, il doit y avoir autant de photos que de lignes dans le fichier!
+On peut changer le nom du fichier d'entrée et/ou le dossier où se trouve les photos et/ou le nom du fichier pdf généré.
 
-`$ ./s1_create_pair_file.sh [-l fichier_liste] [-p dossier_photos]`
+Attention, il doit y avoir autant de photos que de lignes dans le fichier d'entrée!
 
+`$ ./trombino.sh [-l fichier_liste] [-p dossier_photos] [-o nom_pdf] [-c nb_cols]`
+
+Attention, si trop de colonnes, on aura une erreur de compilation LaTeX, mais le fichier de sortie devrait être généré quand même.
 
 ## Exemple/demo
 
 Des données de démo dont incluses, vous pouvez tester directement.
-Il y a
+Il y a:
 
 * une liste de noms (thx: https://fossbytes.com/tools/random-name-generator)
 * une liste de "photos" (thx: https://multiavatar.com/)
