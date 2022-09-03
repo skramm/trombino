@@ -42,6 +42,15 @@ Par défaut, il utilise comme fichier d'entrée `liste.csv` mais on peut passer 
 * `s2_create_trombi.sh`: va générer le fichier LaTeX (stocké dans `BUILD`), et appelle le compilateur `pdflatex` pour générer le pdf.
 Le nom du fichier pdf généré est par défaut `trombi.pdf` mais on peut passer un autre nom en argument (sans l'extension!).
 
+
+Syntaxe:
+
+On peut changer le nom du fichier d'entrée et/ou le dossier où se trouve les photos.
+Attention, il doit y avoir autant de photos que de lignes dans le fichier!
+
+`$ ./s1_create_pair_file.sh [-l fichier_liste] [-p dossier_photos]`
+
+
 ## Exemple/demo
 
 Des données de démo dont incluses, vous pouvez tester directement.

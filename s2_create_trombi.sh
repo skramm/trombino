@@ -30,7 +30,6 @@ function close_page
 	if $table_is_closed ; then
 		return;
 	fi
-	echo "func: close_page"
 
 	(( count_cols+=1 ))
 	if ! $line_is_closed ;
@@ -101,13 +100,11 @@ function process_line
 
 	fi
 
-	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
+#	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
 }
 
 
-
 # ----------------------------------------------------------------------------
-
 # DEBUT SCRIPT
 
 if [ ! -f "$header_file" ]; then
@@ -134,7 +131,6 @@ done < $input_file
 # close what might need to be closed
 
 if [ "$count_cols" -ne "0" ]; then
-	echo "\\\ \hline" >>$outfile;
 	close_page
 	echo
 fi
@@ -148,16 +144,18 @@ echo "" >>$outfile
 echo "\end{document}" >>$outfile
 
 cd BUILD
-echo "start pdflatex"
+echo "- Etape 3: start pdflatex"
 pdflatex -interaction=batchmode $outfile1 1>pdflatex.stdout 2>pdflatex.stderr
 if [ $? != 0 ]; then
-	echo "Echec, erreur à la compilation, voir fichier log"
+	echo " - Erreur: échec de la compilation, voir fichier log"
+	exit 4
 else
-	echo "Succès!"
+	echo " - Succès!"
 	mv $outfile1.pdf ..
 fi
 cd ..
 
+exit 0
 
 # ----------------------------------------------------------------------------
 
