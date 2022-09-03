@@ -1,10 +1,13 @@
 # trombino
 Génération de trombinoscope automatique,
 
+* auteur: Sebastien Kramm
+* statut: quasi-pret ! (2022-09-02)
+* home page: https://github.com/skramm/trombino
+* licence: [WTFPL](https://en.wikipedia.org/wiki/WTFPL)
+
 Calibré pour des groupes de 5-16 personnes par page, pour une année d'une promo de type universitaire (20-100 ou plus personnes).
 
-* statut: quasi-pret ! (2022-09-02)
-* home: https://github.com/skramm/trombino
 
 ## Exemple de résultat
 
@@ -51,6 +54,14 @@ Il y a:
 * une liste de noms (thx: https://fossbytes.com/tools/random-name-generator)
 * une liste de "photos" (thx: https://multiavatar.com/)
 Ces avatars sont générés via le script `gen_avatars.sh` (requires Imagemagick)
+
+Tapez la commande suivante dans le dossier racine, une fois le repo cloné:
+
+```
+$ ./trombino.sh
+```
+
+Ceci doit vous donner dans un fichier `trombi.pdf`, similaire à celui qui est fourni (`trombi_exemple.pdf`).
 
 
 
