@@ -50,7 +50,7 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 * `-l`: pour spécifier un autre nom du fichier "liste"
 * `-p`: pour indiquer un autre dossier pour les photos
 * `-o`: pour donner un autre nom au fichier pdf généré (sans extension!!)
-* `-c`: pour  modifier le nombre de colonnes
+* `-c`: pour  modifier le nombre de colonnes. La taille des photos est automatiquement ajustée.
  
 Attention, si trop de colonnes, on aura une erreur de compilation LaTeX, mais le fichier de sortie devrait être généré quand même.
 

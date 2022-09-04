@@ -66,8 +66,12 @@ function new_page
 	echo "\end{center}" >>$outfile
 
 	echo "" >>$outfile
-	echo "\begin{tabularx}{\linewidth}{|X|X|X|X|}" >>$outfile
-	echo "\hline" >>$outfile
+	echo -n "\begin{tabularx}{\linewidth}{|" >>$outfile
+	for (( i=0;i<$nb_cols;i++ ))
+	do
+		printf "X|" >>$outfile	
+	done
+	echo "}\hline" >>$outfile
 	table_is_closed=false;
 }
 
@@ -92,7 +96,7 @@ function process_line
 	line_is_closed=false
 
 	photo="${1%.*}"
-	echo "\includegraphics[width=36mm]{$photo} \newline" >>$outfile
+	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
 	echo "$3 $4 $5" >>$outfile
 	(( count_cols += 1 ))
 
@@ -157,6 +161,9 @@ outfile=BUILD/$outfile1.tex
 
 echo " -Nbe colonnes par page=$nb_cols"
 
+# calcul largeur cellule en fonction du nbe de colonnes
+width=$(bc <<< "scale=2;0.95/$nb_cols")
+#echo "width=$width"
 
 # liste des photos
 ls $photos -1 > BUILD/list_photos.txt
