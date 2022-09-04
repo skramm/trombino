@@ -162,7 +162,8 @@ echo " -Nbe colonnes par page=$nb_cols"
 ls $photos -1 > BUILD/list_photos.txt
 
 # check
-n1=$(wc -l <$input_file)
+sed '/^[[:space:]]*$/d' $input_file > BUILD/input.csv
+n1=$(wc -l <BUILD/input.csv)
 n2=$(wc -l <BUILD/list_photos.txt)
 if [ $n1 != $n2 ]
 then
@@ -174,7 +175,7 @@ echo " -Lecture de $n1 personnes & photos"
 echo "* Etape 1: génération fichiers intermédiaires"
 
 # merge photos + noms/groupes
-paste --delimiters="," BUILD/list_photos.txt $input_file > BUILD/global_list_1.csv
+paste --delimiters="," BUILD/list_photos.txt BUILD/input.csv > BUILD/global_list_1.csv
 
 # tri
 sort -t, -k2,3 BUILD/global_list_1.csv >BUILD/global_list_2.csv
