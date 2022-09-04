@@ -6,7 +6,7 @@ Génération de trombinoscope en pdf automatique, à partir d'une liste et d'un 
 * home page: https://github.com/skramm/trombino
 * licence: [WTFPL](https://en.wikipedia.org/wiki/WTFPL)
 
-Calibré pour des groupes de 5-16 personnes par page, pour une année d'une promo de type universitaire (20-100 ou plus personnes).
+Calibré pour des groupes de 3-16..20 personnes par page, pour une année d'une promo de type universitaire (20-100 ou plus personnes, réparties en plusieurs groupes).
 
 
 ## Exemple de résultat (réel)
@@ -15,7 +15,7 @@ Calibré pour des groupes de 5-16 personnes par page, pour une année d'une prom
 
 
 ## Outils nécessaires
-* bash
+* bash (incluant le calculateur `bc`)
 * LaTeX, avec le package `tabularx`
 
 ## Utilisation
@@ -29,7 +29,8 @@ Dans l'idéal, il faudrait avoir des photos de quelques dizaines de ko.
 
 
 ## Données d'entrées du script
-* une liste en CSV contenant sur 3 champs: Groupe, Nom, Prénom, à coller dans le dossier racine
+* une liste en CSV contenant sur 3 champs:
+Groupe, Nom, Prénom, à coller dans le dossier racine
 Les lignes vides seront ignorées.
 * copier dans le dossier `photos` les photos, dans l'ordre de la liste.
 
@@ -50,10 +51,8 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 * `-l`: pour spécifier un autre nom du fichier "liste"
 * `-p`: pour indiquer un autre dossier pour les photos
 * `-o`: pour donner un autre nom au fichier pdf généré (sans extension!!)
-* `-c`: pour  modifier le nombre de colonnes. La taille des photos est automatiquement ajustée.
+* `-c`: pour modifier le nombre de colonnes. La taille des photos est automatiquement ajustée.
  
-Attention, si trop de colonnes, on aura une erreur de compilation LaTeX, mais le fichier de sortie devrait être généré quand même.
-
 ## Exemple/demo
 
 Des données de démo dont incluses, vous pouvez tester directement.
@@ -68,5 +67,11 @@ Tapez la commande suivante dans le dossier racine, une fois le repo cloné:
 $ ./trombino.sh
 ```
 Ceci doit vous donner dans un fichier `trombi.pdf`, similaire à celui qui est fourni (`trombi_exemple.pdf`).
+
+Vous pouvez aussi essayer ceci pour voir les mêmes données en 5 colonnes:
+```
+$ ./trombino.sh -c 5
+```
+
 
 
