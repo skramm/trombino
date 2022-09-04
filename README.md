@@ -30,12 +30,16 @@ Dans l'idéal, il faudrait avoir des photos de quelques dizaines de ko.
 
 ## Données d'entrées du script
 * une liste en CSV contenant sur 3 champs: Groupe, Nom, Prénom, à coller dans le dossier racine
+Les lignes vides seront ignorées.
 * copier dans le dossier `photos` les photos, dans l'ordre de la liste.
 
 Attention, il doit y avoir autant de photos que de lignes dans le fichier d'entrée!
 
 ## Paramétrage
-* éditer le fichier `trombi_header.tex` pour y mettre le nom de l'établissement, l'année, etc.
+* éditer le fichier `entete_ecole.txt` et y mettre le nom de l'établissement, de la promo, etc.
+Sera imprimé dans l'en-tête de gauche.
+* éditer le fichier `entete_annee.txt` et y mettre l'année en cours (ou ce que vous voulez d'autre!).
+Sera imprimé dans l'en-tête de droite.
 
 ## Syntaxe d'appel
 

@@ -188,11 +188,17 @@ fi
 # Génération du .tex
 
 if [ ! -f "$header_file" ]; then
-    echo " -Erreur: fichier d'en-tête introuvale"
+    echo " -Erreur: fichier d'en-tête introuvable"
 	exit
 fi
 
 cat $header_file >$outfile
+cat entete_ecole.txt >>$outfile
+echo "}">>$outfile
+echo "\rhead{">>$outfile
+cat entete_annee.txt >>$outfile
+echo "}">>$outfile
+echo "\begin{document}\noindent">>$outfile
 echo "\graphicspath{ {../$photos/} }">>$outfile
 
 IFS=,
