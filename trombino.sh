@@ -142,6 +142,9 @@ while [ -n "$1" ]; do # while loop starts
 	shift
 done
 
+# création dossier temporaire
+mkdir -p BUILD
+
 if [ -f $input_file ]; then
 	echo " -Lecture liste dans fichier '$input_file'"
 else
