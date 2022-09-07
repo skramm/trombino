@@ -97,7 +97,10 @@ function process_line
 
 	photo="${1%.*}"
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
-	echo "$3 $4 $5" >>$outfile
+	echo "$3 - $4" >>$outfile
+	if [ "$5" != "" ]; then
+		echo " - $5" >>$outfile
+	fi
 	(( count_cols += 1 ))
 
 	if [ "$count_cols" -eq "$nb_cols" ]; then
@@ -166,7 +169,6 @@ echo " -Nbe colonnes par page=$nb_cols"
 
 # calcul largeur cellule en fonction du nbe de colonnes
 width=$(bc <<< "scale=2;0.95/$nb_cols")
-#echo "width=$width"
 
 # liste des photos
 ls $photos -1 > BUILD/list_photos.txt
@@ -203,10 +205,22 @@ if [ ! -f "$header_file" ]; then
 fi
 
 cat $header_file >$outfile
-cat entete_ecole.txt >>$outfile
+
+if [ -f entete_ecole.txt ]; then
+	cat entete_ecole.txt >>$outfile
+else
+	echo " -Warning: fichier entete_ecole absent"
+fi
+
 echo "}">>$outfile
 echo "\rhead{">>$outfile
-cat entete_annee.txt >>$outfile
+
+if [ -f entete_annee.txt ]; then
+	cat entete_annee.txt >>$outfile
+else
+	echo " -Warning: fichier entete_annee absent"
+fi
+
 echo "}">>$outfile
 echo "\begin{document}\noindent">>$outfile
 echo "\graphicspath{ {../$photos/} }">>$outfile
