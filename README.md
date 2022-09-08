@@ -18,6 +18,15 @@ Calibré pour des groupes de 3-16..20 personnes par page, pour une année d'une 
 * bash (incluant le calculateur `bc`)
 * LaTeX, avec le package `tabularx`
 
+## Installation
+
+Il est possible d'utiliser le programme directement depuis le dépot cloné.
+Mais il est préférable de l'installer sur la machine, via:
+```
+$ sudo ./install
+```
+Ceci va copier le script dans `/usr/local/bin/` et le fichier de configuration (fichier d'en-tête LaTeX) dans `/etc/trombino/`.
+
 ## Utilisation
 
 Il faut avoir une liste des personnes, et prendre une photo par personne, **dans l'ordre de la liste**.

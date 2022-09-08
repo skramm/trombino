@@ -4,8 +4,7 @@
 # https://github.com/skramm/trombino
 # création automatique de trombinoscope
 
-# part 1: création du fichier contenant les paires photo - Id
-
+ version=1.1
 
 # dossier par défaut contenant les photos
 photos=photos/
@@ -97,7 +96,9 @@ function process_line
 
 	photo="${1%.*}"
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
-	echo "$3 - $4" >>$outfile
+	echo "$3" | tr [:lower:] [:upper:] >>$outfile
+	echo "$4" >>$outfile
+	
 	if [ "$5" != "" ]; then
 		echo " - $5" >>$outfile
 	fi
@@ -120,6 +121,9 @@ function process_line
 # ----------------------------------------------------------------------------
 # DEBUT SCRIPT 
 
+echo "trombino $version, https://github.com/skramm/trombino"
+echo " -h pour les options"
+
 # etape 1: lecture des parametres
 
 while [ -n "$1" ]; do # while loop starts
@@ -140,6 +144,14 @@ while [ -n "$1" ]; do # while loop starts
 		outfile1="$2"
 		shift
 		;;	
+	-h)
+		echo " -l nom_fichier: pour spécifier un autre nom du fichier contenant la liste"
+		echo " -p dossier: pour indiquer un autre dossier pour les photos"
+		echo " -o nom_fichier: pour spécifier le nom du fichier pdf généré (sans extension!)"
+		echo " -c: pour spécifier le nombre de colonnes"
+		exit 0
+		;;	
+		
 	*) echo " -Erreur: option $1 inconnue"; exit 1 ;;
 	esac
 	shift
@@ -168,7 +180,9 @@ outfile=BUILD/$outfile1.tex
 echo " -Nbe colonnes par page=$nb_cols"
 
 # calcul largeur cellule en fonction du nbe de colonnes
-width=$(bc <<< "scale=2;0.95/$nb_cols")
+width=$(bc <<< "scale=2;0.85/$nb_cols")
+
+# part 1: création du fichier contenant les paires photo - Id
 
 # liste des photos
 ls $photos -1 > BUILD/list_photos.txt
@@ -200,9 +214,15 @@ fi
 # Génération du .tex
 
 if [ ! -f "$header_file" ]; then
-    echo " -Erreur: fichier d'en-tête introuvable"
-	exit
+	if [ ! -f "/etc/trombino/$header_file" ]; then
+	    echo " -Erreur: fichier d'en-tête introuvable"
+	    exit 5
+	else
+		header_file=/etc/trombino/$header_file
+		echo " -Utilisation de l'en-tete par défaut $header_file"
+	fi
 fi
+
 
 cat $header_file >$outfile
 

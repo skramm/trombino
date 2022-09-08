@@ -1,0 +1,4 @@
+cp trombino /usr/local/bin
+mkdir -p /etc/trombino
+cp trombi_header.tex /etc/trombino
+
