@@ -55,12 +55,14 @@ Sera imprimé dans l'en-tête de droite.
 
 Des valeurs par défaut sont prévues, mais on peut passer des options pour les modifier.
 
-`$ ./trombino [-l fichier_liste] [-p dossier_photos] [-o nom_pdf] [-c nb_cols]`
+`$ ./trombino [-hs] [-l fichier_liste] [-p dossier_photos] [-o nom_pdf] [-c nb_cols]`
 
 * `-l`: pour spécifier un autre nom du fichier "liste"
 * `-p`: pour indiquer un autre dossier pour les photos
 * `-o`: pour donner un autre nom au fichier pdf généré (sans extension!!)
 * `-c`: pour modifier le nombre de colonnes. La taille des photos est automatiquement ajustée.
+* `-s`: permutte nom - prénom
+* `-h`: affiche cette aide
  
 ## Exemple/demo
 
