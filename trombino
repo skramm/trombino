@@ -258,7 +258,7 @@ cat $header_file >$outfile
 if [ -f entete_ecole.txt ]; then
 	cat entete_ecole.txt >>$outfile
 else
-	echo " -Warning: fichier entete_ecole absent"
+	echo " -Warning: fichier entete_ecole.txt absent"
 fi
 
 echo "}">>$outfile
@@ -267,7 +267,7 @@ echo "\rhead{">>$outfile
 if [ -f entete_annee.txt ]; then
 	cat entete_annee.txt >>$outfile
 else
-	echo " -Warning: fichier entete_annee absent"
+	echo " -Warning: fichier entete_annee.txt absent"
 fi
 
 echo "}">>$outfile
