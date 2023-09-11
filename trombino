@@ -143,6 +143,52 @@ function process_line
 
 
 # ----------------------------------------------------------------------------
+function closing
+{
+# close what might need to be closed
+
+if [ "$count_cols" -ne "0" ]; then
+	close_page
+	echo
+fi
+
+if ! $table_is_closed ; then
+	close_page
+fi
+
+# close file
+echo "" >>$outfile
+echo "\end{document}" >>$outfile
+}
+
+# ----------------------------------------------------------------------------
+function process_header
+{
+
+cat $header_file >$outfile
+
+if [ -f entete_ecole.txt ]; then
+	cat entete_ecole.txt >>$outfile
+else
+	echo " -Warning: fichier entete_ecole.txt absent"
+fi
+
+echo "}">>$outfile
+
+echo "\rhead{">>$outfile
+
+if [ -f entete_annee.txt ]; then
+	cat entete_annee.txt >>$outfile
+else
+	echo " -Warning: fichier entete_annee.txt absent"
+fi
+
+echo "}">>$outfile
+echo "\begin{document}\noindent">>$outfile
+echo "\graphicspath{ {../$photos/} }">>$outfile
+}
+
+# ----------------------------------------------------------------------------
 # DEBUT SCRIPT 
 
 echo "trombino $version, https://github.com/skramm/trombino"
@@ -205,6 +251,7 @@ fi
 
 echo " -Nom du fichier de sortie: ${outfile1}.pdf"
 outfile=BUILD/$outfile1.tex
+outfile_all=BUILD/all.pdf
 
 echo " -Nbe colonnes par page=$nb_cols"
 
@@ -252,48 +299,28 @@ if [ ! -f "$header_file" ]; then
 	fi
 fi
 
+outfile=BUILD/$outfile1.tex
+process_header
+outfile=BUILD/all.tex
+process_header
 
-cat $header_file >$outfile
-
-if [ -f entete_ecole.txt ]; then
-	cat entete_ecole.txt >>$outfile
-else
-	echo " -Warning: fichier entete_ecole.txt absent"
-fi
-
-echo "}">>$outfile
-echo "\rhead{">>$outfile
-
-if [ -f entete_annee.txt ]; then
-	cat entete_annee.txt >>$outfile
-else
-	echo " -Warning: fichier entete_annee.txt absent"
-fi
-
-echo "}">>$outfile
-echo "\begin{document}\noindent">>$outfile
-echo "\graphicspath{ {../$photos/} }">>$outfile
 
 IFS=,
+
+outfile=BUILD/all.tex
+while read line; do
+#     echo "line : $line"
+	process_line_all $line
+done < BUILD/global_list_1.csv
+closing
+
+outfile=BUILD/$outfile1.tex
 while read line; do
 #     echo "line : $line"
 	process_line $line
 done < BUILD/global_list_2.csv
+closing
 
-# close what might need to be closed
-
-if [ "$count_cols" -ne "0" ]; then
-	close_page
-	echo
-fi
-
-if ! $table_is_closed ; then
-	close_page
-fi
-
-# close file
-echo "" >>$outfile
-echo "\end{document}" >>$outfile
 
 cd BUILD
 echo "* Etape 2: start pdflatex"
