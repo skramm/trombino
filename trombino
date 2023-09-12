@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # S. Kramm - 2022-2023
 # https://github.com/skramm/trombino
 # création automatique de trombinoscope
+
+set +x
 
 # wip (ajout deuxième fichier avec tous les étudiants)
 branch=dev
@@ -20,6 +22,9 @@ outfile1=trombi
 
 # nb de colonnes par défaut
 nb_cols=4
+
+# nb de lignes max
+max_lines=5
 
 # initialisation variables
 count_lines=0
@@ -63,37 +68,43 @@ function reset_all
 	count_lines=0
 	count_cols=0
 }
+
+# opens new page
+# - arg1: 0: no group title, 1: print group as title
+# - arg2: group
 function new_page
 {
-	echo "\begin{center}" >>$outfile
-	echo "\bf \huge" >>$outfile
-	echo "Groupe $1" >>$outfile
-	echo "\end{center}" >>$outfile
-
+	if [ $1 == 1 ];
+	then
+		echo "\begin{center}" >>$outfile
+		echo "\bf \huge" >>$outfile
+		echo "Groupe $2" >>$outfile
+		echo "\end{center}" >>$outfile
+	fi
 	echo "" >>$outfile
 	echo -n "\begin{tabularx}{\linewidth}{|" >>$outfile
 	for (( i=0;i<$nb_cols;i++ ))
 	do
-		printf "X|" >>$outfile	
+		printf "X|" >>$outfile
 	done
 	echo "}\hline" >>$outfile
 	table_is_closed=false;
 }
 
-#-------------------- Main function, process one line -------------------------
+#-------------------- Main function for global output file, process one line -------------------------
 function process_line_all
 {
 	line_is_closed=false
 	if [ "$count_lines" -eq "0" ] && [ "$count_cols" -eq "0" ]; then
-		new_page $2
+		new_page 0
 	fi
-	
+
 	photo="${1%.*}"
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
 	firstname=$4
 	lastname=$3
 	current_group=$2
-	echo "$firstname $lastname gr $current_group">>$outfile
+	echo "$firstname $lastname \newline gr $current_group">>$outfile
 
 	(( count_cols += 1 ))
 
@@ -102,13 +113,19 @@ function process_line_all
 		line_is_closed=true
 		(( count_lines += 1 ))
 		count_cols=0
+		if [ $count_lines -eq $max_lines ]; then
+			echo "\end{tabularx}" >>$outfile
+			echo "" >>$outfile
+			echo "\clearpage" >>$outfile
+			count_lines=0
+		fi
 	else
 		echo "&" >>$outfile
 	fi
 
 }
 
-#-------------------- Main function, process one line -------------------------
+#-------------------- Main function for groups, process one line -------------------------
 function process_line
 {
 # args: 1: photo filename, 2: group, 3: name, 4: firstname, 5: bac
@@ -124,7 +141,7 @@ function process_line
 	fi
 
 	if [ "$count_lines" -eq "0" ] &&  [ "$count_cols" -eq "0" ]; then
-		new_page $2
+		new_page 1 $2
 	fi
 	line_is_closed=false
 
@@ -135,7 +152,7 @@ function process_line
 
 #	echo "abcd: firstname=$firstname lastname=$lastname"
 #	printf "FN=%s-LN=%s",$firstname,$lastname
-	
+
 	if [ $swapfnln = true ]; then
 		tmpvar="$firstname"
 #		echo "tmpvar=$tmpvar"
@@ -153,7 +170,7 @@ function process_line
 	firstname1=${firstname,,}
 	firstname2=${firstname1^}
 	echo "$firstname2" >>$outfile
-	
+
 	if [ "$5" != "" ]; then
 		echo " - $5" >>$outfile
 	fi
@@ -173,7 +190,7 @@ function process_line
 
 
 # ----------------------------------------------------------------------------
-function closing
+function close_source
 {
 # close what might need to be closed
 
@@ -219,7 +236,28 @@ echo "\graphicspath{ {../$photos/} }">>$outfile
 }
 
 # ----------------------------------------------------------------------------
-# DEBUT SCRIPT 
+function latex_build
+{
+cd BUILD
+echo "* Etape 2: start pdflatex, fichier $outfile"
+pdflatex -interaction=batchmode $outfile 1>pdflatex.stdout 2>pdflatex.stderr
+if [ $? != 0 ]; then
+	echo " -Erreur de compilation, voir fichier log"
+else
+	echo " -Compilation: ok"
+fi
+
+if [ -f $outfile.pdf ]; then
+	echo " -Fichier $outfile.pdf généré"
+	mv $outfile.pdf ..
+else
+	echo " -Erreur fatale, pas de pdf généré"
+fi
+cd ..
+}
+
+# ----------------------------------------------------------------------------
+# DEBUT SCRIPT
 
 echo "trombino $version, https://github.com/skramm/trombino"
 echo " -h pour les options"
@@ -243,7 +281,7 @@ while [ -n "$1" ]; do # while loop starts
 	-o)
 		outfile1="$2"
 		shift
-		;;	
+		;;
 	-s)
 		swapfnln=true
 		shift
@@ -255,8 +293,8 @@ while [ -n "$1" ]; do # while loop starts
 		echo " -c: pour spécifier le nombre de colonnes"
 		echo " -s: permutte nom - prénom"
 		exit 0
-		;;	
-		
+		;;
+
 	*) echo " -Erreur: option $1 inconnue"; exit 1 ;;
 	esac
 	shift
@@ -270,14 +308,14 @@ if [ -f $input_file ]; then
 else
 	echo " -Erreur: fichier '$input_file' introuvable!"
 	exit 2
-fi	
+fi
 
 if [ -d $photos ]; then
 	echo " -Lecture des photos dans dossier '$photos'"
 else
 	echo " -Erreur: dossier '$photos' introuvable!"
 	exit 3
-fi	
+fi
 
 echo " -Nom du fichier de sortie: ${outfile1}.pdf"
 outfile=BUILD/$outfile1.tex
@@ -339,7 +377,12 @@ while read line; do
 #     echo "line : $line"
 	process_line_all $line
 done < BUILD/global_list_1.csv
-closing
+close_source
+
+outfile=all
+latex_build
+
+
 
 outfile=BUILD/$outfile1.tex
 process_header
@@ -347,25 +390,10 @@ while read line; do
 #     echo "line : $line"
 	process_line $line
 done < BUILD/global_list_2.csv
-closing
+close_source
 
-
-cd BUILD
-echo "* Etape 2: start pdflatex"
-pdflatex -interaction=batchmode $outfile1 1>pdflatex.stdout 2>pdflatex.stderr
-if [ $? != 0 ]; then
-	echo " -Erreur de compilation, voir fichier log"
-else
-	echo " -Compilation: ok"
-fi
-
-if [ -f $outfile1.pdf ]; then
-	echo " -Fichier $outfile1.pdf généré"
-	mv $outfile1.pdf ..
-else
-	echo " -Erreur fatale, pas de pdf généré"
-fi
-cd ..
+outfile=$outfile1
+latex_build
 
 exit 0
 
