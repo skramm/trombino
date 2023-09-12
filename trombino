@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# S. Kramm - 2022
+# S. Kramm - 2022-2023
 # https://github.com/skramm/trombino
 # création automatique de trombinoscope
 
- version=1.1
+# wip (ajout deuxième fichier avec tous les étudiants)
+branch=dev
+
+version=1.2
 
 # dossier par défaut contenant les photos
 photos=photos/
@@ -78,6 +81,34 @@ function new_page
 }
 
 #-------------------- Main function, process one line -------------------------
+function process_line_all
+{
+	line_is_closed=false
+	if [ "$count_lines" -eq "0" ] && [ "$count_cols" -eq "0" ]; then
+		new_page $2
+	fi
+	
+	photo="${1%.*}"
+	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
+	firstname=$4
+	lastname=$3
+	current_group=$2
+	echo "$firstname $lastname gr $current_group">>$outfile
+
+	(( count_cols += 1 ))
+
+	if [ "$count_cols" -eq "$nb_cols" ]; then
+		echo "\\\ \hline" >>$outfile
+		line_is_closed=true
+		(( count_lines += 1 ))
+		count_cols=0
+	else
+		echo "&" >>$outfile
+	fi
+
+}
+
+#-------------------- Main function, process one line -------------------------
 function process_line
 {
 # args: 1: photo filename, 2: group, 3: name, 4: firstname, 5: bac
@@ -135,7 +166,6 @@ function process_line
 		count_cols=0
 	else
 		echo "&" >>$outfile
-
 	fi
 
 #	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
@@ -299,15 +329,12 @@ if [ ! -f "$header_file" ]; then
 	fi
 fi
 
-outfile=BUILD/$outfile1.tex
-process_header
-outfile=BUILD/all.tex
-process_header
 
 
 IFS=,
 
 outfile=BUILD/all.tex
+process_header
 while read line; do
 #     echo "line : $line"
 	process_line_all $line
@@ -315,6 +342,7 @@ done < BUILD/global_list_1.csv
 closing
 
 outfile=BUILD/$outfile1.tex
+process_header
 while read line; do
 #     echo "line : $line"
 	process_line $line
