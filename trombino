@@ -24,7 +24,7 @@ outfile1=trombi
 nb_cols=4
 
 # nb de lignes max
-max_lines=5
+max_lines=4
 
 # initialisation variables
 count_lines=0
