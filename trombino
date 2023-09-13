@@ -6,9 +6,6 @@
 
 set +x
 
-# wip (ajout deuxième fichier avec tous les étudiants)
-branch=dev
-
 version=1.2
 
 # dossier par défaut contenant les photos
@@ -106,6 +103,12 @@ function process_line_all
 	current_group=$2
 	echo "$firstname $lastname \newline gr $current_group">>$outfile
 
+# print photo filename in debug mode
+	if [ $debug_mode = true ];
+	then
+		echo "-$photo" >>$outfile
+	fi
+
 	(( count_cols += 1 ))
 
 	if [ "$count_cols" -eq "$nb_cols" ]; then
@@ -174,6 +177,13 @@ function process_line
 	if [ "$5" != "" ]; then
 		echo " - $5" >>$outfile
 	fi
+
+# print photo filename in debug mode
+	if [ $debug_mode = true ];
+	then
+		echo "-$photo" >>$outfile
+	fi
+	
 	(( count_cols += 1 ))
 
 	if [ "$count_cols" -eq "$nb_cols" ]; then
@@ -262,6 +272,8 @@ cd ..
 echo "trombino $version, https://github.com/skramm/trombino"
 echo " -h pour les options"
 
+debug_mode=false
+
 # etape 1: lecture des parametres
 
 while [ -n "$1" ]; do # while loop starts
@@ -274,6 +286,10 @@ while [ -n "$1" ]; do # while loop starts
 		photos="$2"
 		shift
 		;;
+	-d)
+		debug_mode=true
+		shift
+		;;	
 	-c)
 		nb_cols="$2"
 		shift

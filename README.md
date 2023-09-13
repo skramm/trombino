@@ -63,6 +63,9 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 * `-c`: pour modifier le nombre de colonnes. La taille des photos est automatiquement ajustée.
 * `-s`: permutte nom - prénom
 * `-h`: affiche cette aide
+* `-d`: active le mode "debug", ce qui imprimera le nom du fichier de la photo avec la photo
+(utile en cas d'erreur nom/photo)
+
  
 ## Exemple/demo
 
