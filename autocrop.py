@@ -3,6 +3,9 @@
 # WIP, untested !!
 # src: https://www.datacamp.com/tutorial/face-detection-python-opencv
 
+# pbe a regler: la fonc detectMultiScale trouve parfois 2 rectangles
+# comment gerer ça?
+ 
 import sys
 import cv2
 import matplotlib.pyplot as plt
@@ -18,6 +21,8 @@ face_classifier = cv2.CascadeClassifier(
 face = face_classifier.detectMultiScale(
     gray_image, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40)
 )
+
+print( "nd rect=", face )
 
 for (x, y, w, h) in face:
     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 4)
