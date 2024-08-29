@@ -105,3 +105,14 @@ Vous pouvez aussi essayer ceci pour voir les mêmes données en 5 colonnes:
 $ ./trombino -c 5
 ```
 
+## Extension optionnelle: auto-cropping
+
+L'un des points faible de ce programme est le fait qu'il nécessite en pratique un "cropping" des photos.
+En effet, en général, le cadrage fait qu'il est peu pratique d'avoir dès la prise de vue un cadrage type "photo d'indentité".
+Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux (et donc, non).
+On peut l'automatiser via un script qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédeterminer la bonne "bounding box", ce qui prend du temps.
+Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le copping identique pour toutes les photos va générer des "coupages de têtes".
+
+Depuis 2024/09, une extension utilisant la biliothèque OpenCv est inclue, qui permet d'avoir un cropping automatique, par une détection de visage dans la photo.
+
+

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+# GUI app, designed to select parameters for face detection
+
 # src: https://www.datacamp.com/tutorial/face-detection-python-opencv
 
-# 2 arguments required
-# -1: filename (with path, say "my/folder/photo_12345.jpg")
-# -2: output folder
+# 1 argument required: full filename
 
 #----------------------------------------------
 # PARAMETERS (adjust if needed)
@@ -41,13 +41,22 @@ print( "input image size=", img.size, " size=", img.shape )
 gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
-face_classifier = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-)
+while True:
 
-face = face_classifier.detectMultiScale(
-    gray_image, scaleFactor=scale, minNeighbors=5, minSize=(minBBsize, minBBsize)
-)
+	face_classifier = cv2.CascadeClassifier(
+	    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+	)
+
+	face = face_classifier.detectMultiScale(
+    	gray_image, scaleFactor=scale, minNeighbors=5, minSize=(minBBsize, minBBsize)
+	)
+
+	for (x, y, w, h) in face:
+	    cv2.rectangle(img, (x, y), (x + w, y + h), (128, 255, 0), 4)
+	
+
+
+'''	
 #print( "type of face=", type(face) )
 
 if len(face) == 0:
@@ -78,6 +87,7 @@ h0 = int( face[0][3] + 2*deltay )
 
 img_out = gray_image[y0:y0+h0,x0:x0+w0]
 cv2.imwrite(dir_out+"/"+fname,img_out)
+'''
 
 
 
