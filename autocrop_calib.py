@@ -10,7 +10,7 @@
 # PARAMETERS (adjust if needed)
 # see https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
 minBBsize=60
-scale=2.0
+scaleFactor=2.0
 #----------------------------------------------
 
 
@@ -20,17 +20,51 @@ import cv2
 import pathlib
 from pathlib import Path
 
-#import matplotlib.pyplot as plt
+window="calib"
+'''
+scaleFactor	Parameter specifying how much the image size is reduced at each image scale.
+minNeighbors	Parameter specifying how many neighbors each candidate rectangle should have to retain it.
+flags	Parameter with the same meaning for an old cascade as in the function cvHaarDetectObjects. It is not used for a new cascade.
+minSize	Minimum possible object size. Objects smaller than that are ignored.
+maxSize
+'''
 
-#print( "nb arg=",len(sys.argv) )
-if( len(sys.argv) != 3 ):
-	print( "Error, require 2 arguments" )
+def processDetection():
+	face_classifier = cv2.CascadeClassifier(
+	    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+	)
+	face = face_classifier.detectMultiScale(
+    	gray_image, scaleFactor=scaleFactor, minNeighbors=5, minSize=(minBBsize, minBBsize)
+	)
+	if len(face) == 0:
+		print( "Failed to find face!")
+	else:
+		print( "nd rect=", face )
+		print( "size=", face.size, " ndim=", face.ndim, " shape=", face.shape )
+		print( " shape r=", face.shape[0], " shape c=", face.shape[1] )
+
+		for (x, y, w, h) in face:
+		    cv2.rectangle(img, (x, y), (x + w, y + h), (128, 255, 0), 4)
+
+	cv2.imshow('window',img)
+
+
+# scaleFactor
+def on_trackbar_sf(val):
+    scaleFactor = val / 10
+	processDetection()
+    cv.imshow(title_window, img)
+
+# minNeighbors
+
+
+if( len(sys.argv) != 2 ):
+	print( "Error, require 1 argument: filename" )
 	exit(1)
 	
 fullfname = sys.argv[1]
-dir_out = sys.argv[2]
-fname = os.path.basename(fullfname)
 print( "fullfname=", fullfname )
+
 
 img = cv2.imread(fullfname)
 if img is None:
@@ -40,20 +74,17 @@ if img is None:
 print( "input image size=", img.size, " size=", img.shape )
 gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+cv.namedWindow(window)
+cv.createTrackbar("Scale Factor", window , 0, 20, on_trackbar_sf)
+#cv.createTrackbar("tb2", title_window , 0, max2, on_trackbar2)
+#cv.createTrackbar("tb3", title_window , 0, max3, on_trackbar3)
+
 
 while True:
+	processDetection()
 
-	face_classifier = cv2.CascadeClassifier(
-	    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-	)
-
-	face = face_classifier.detectMultiScale(
-    	gray_image, scaleFactor=scale, minNeighbors=5, minSize=(minBBsize, minBBsize)
-	)
-
-	for (x, y, w, h) in face:
-	    cv2.rectangle(img, (x, y), (x + w, y + h), (128, 255, 0), 4)
-	
+	cv2.imshow(window,img)
+	cv2.waitKey(0)
 
 
 '''	
