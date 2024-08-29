@@ -37,6 +37,7 @@ Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.o
 Dans l'idéal, il faudrait avoir des photos de quelques dizaines de ko.
 
 Le script va générer deux fichiers pdf:
+
 * `trombi_global.pdf`: trombinoscope global, sur plusieurs pages;
 * `trombi_groupes.pdf`: trombinoscope avec une page par groupe, avec les étudiants faisant partie de ce groupe.
 

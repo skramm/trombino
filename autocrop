@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# args:
+# 1: input folder where the photos are (must exist!)
+# 2: name of output folder (will be created)
+
+
+if [ "$#" -ne 2 ]; then
+    echo "2 arguments requested"
+    exit 1
+fi
+
+
+mkdir -p $2
+
+for fn in $1/*
+do
+	echo "processing file $fn"
+	trombino_autocrop.py $fn $2
+done
+

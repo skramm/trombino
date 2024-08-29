@@ -1,4 +1,6 @@
 cp trombino /usr/local/bin
 mkdir -p /etc/trombino
 cp trombi_header.tex /etc/trombino
+cp autocrop.py /usr/local/bin/trombino_autocrop.py
+cp autocrop /usr/local/bin/
 
