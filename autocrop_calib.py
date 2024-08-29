@@ -14,7 +14,7 @@ minNeighbors=5
 #----------------------------------------------
 
 # used to adapt large images to the screen
-ViewScale=1.0
+viewScale=1.0
 
 import os
 import sys
@@ -24,7 +24,7 @@ from pathlib import Path
 
 window="calib"
 font = cv2.FONT_HERSHEY_SIMPLEX
-
+iterIdx=0
 # predeclaration (needed coz used in trackbar callback)
 img=None
 
@@ -37,7 +37,10 @@ maxSize
 '''
 
 def processDetection():
-	img = img_src
+	global iterIdx
+	iterIdx=iterIdx+1
+
+	img = img_src.copy()
 	print( "Detection: image size=", img.size, " shape=", img.shape )
 
 	face_classifier = cv2.CascadeClassifier(
@@ -53,7 +56,8 @@ def processDetection():
 	if len(face) == 0:
 		print( "Failed to find face!")
 	else:
-#		print( "nd rect=", face )
+		cv2.putText( img, str(iterIdx), (10,20), font, 1.0, (0,250,250) )
+
 		print( "size=", face.size, " ndim=", face.ndim, " shape=", face.shape )
 		print( " shape r=", face.shape[0], " shape c=", face.shape[1] )
 		for (x, y, w, h) in face:
@@ -67,9 +71,10 @@ def processDetection():
 			h0 = int( h + 2*deltay )
 			cv2.rectangle(img, (x0, y0), (x0 + w0, y0 + h0), (255, 255, 0), 2)
 
-
 	cv2.imshow(window,img)
 
+#=====================================================================
+# TRACKBAR CALLBACK FUNCTIONS
 
 # scaleFactor
 def on_trackbar_sf(val):
@@ -107,13 +112,16 @@ def on_trackbar_max(val):
 #=====================================================================
 # BEGIN
 
+import tkinter
+app = tkinter.Tk()
+s_width  = app.winfo_screenwidth()
+s_height = app.winfo_screenheight()
+
 if( len(sys.argv) != 2 ):
 	print( "Error, require 1 argument: filename" )
 	exit(1)
 	
 fullfname = sys.argv[1]
-#print( "fullfname=", fullfname )
-
 
 img_src = cv2.imread(fullfname)
 if img_src is None:
@@ -121,60 +129,32 @@ if img_src is None:
 	exit(2)
 	
 print( "input image size=", img_src.size, " size=", img_src.shape, "w=", img_src.shape[1]  )
+
+im_w = img_src.shape[1]
+im_h = img_src.shape[0]
+
+if (im_w>s_width or im_h>s_height):
+	k_w = im_w/s_width
+	k_h = im_h/s_height
+	viewScale=k_w
+	if k_h>k_w:
+		viewScale=k_h
+	print("view scale factor=", viewScale ) 
+
+	
 gray_image = cv2.cvtColor(img_src, cv2.COLOR_BGR2GRAY)
 
 cv2.namedWindow(window)
 
 cv2.createTrackbar( "Scale Factor",  window , int(scaleFactor*10), 30, on_trackbar_sf)
 cv2.createTrackbar( "min Neighbors", window , minNeighbors,        20, on_trackbar_mn)
-cv2.createTrackbar(  "min size",      window , minBBsize,           minBBsize*2, on_trackbar_min )
-cv2.createTrackbar(  "max size",      window , maxBBsize,           int(img_src.shape[1]/2), on_trackbar_max )
-
-#cv.createTrackbar("tb3", title_window , 0, max3, on_trackbar3)
+cv2.createTrackbar( "min size",      window , minBBsize,           minBBsize*2, on_trackbar_min )
+cv2.createTrackbar( "max size",      window , maxBBsize,           int(img_src.shape[1]/2), on_trackbar_max )
 
 
 while True:
-
 	processDetection()
-
-#	cv2.imshow(window,img)
 	key=cv2.waitKey(0)
 	if key == 27:
 		break
-
-
-'''	
-#print( "type of face=", type(face) )
-
-if len(face) == 0:
-	print( "Failed to find face, output file identical to input!" )
-	cv2.imwrite(dir_out+"/"+fname,img)
-	exit(0)
-
-#print( "nd rect=", face )
-print( "size=", face.size, " ndim=", face.ndim, " shape=", face.shape )
-print( " shape r=", face.shape[0], " shape c=", face.shape[1] )
-
-if( face.shape[0] != 1 ):
-	print( "Failure, found ", face.shape[0], " faces in file ", sys.argv[1] )
-	exit(4)
-
-#for (x, y, w, h) in face:
-#    cv2.rectangle(img, (x, y), (x + w, y + h), (128, 255, 0), 4)
-
-deltax=face[0][2]/3
-deltay=face[0][2]/2
-x0 = int( face[0][0] - deltax   )
-y0 = int( face[0][1] - deltay   )
-w0 = int( face[0][2] + 2*deltax )
-h0 = int( face[0][3] + 2*deltay )
-
-
-#cv2.rectangle(img, (x0, y0), (x0 + w0, y0 + h0), (0, 255, 0), 4)
-
-img_out = gray_image[y0:y0+h0,x0:x0+w0]
-cv2.imwrite(dir_out+"/"+fname,img_out)
-'''
-
-
 
