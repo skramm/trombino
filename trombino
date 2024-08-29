@@ -6,9 +6,6 @@
 
 set +x
 
-# wip (ajout deuxième fichier avec tous les étudiants)
-branch=dev
-
 version=1.2
 
 # dossier par défaut contenant les photos
@@ -18,7 +15,7 @@ photos=photos/
 input_file=liste.csv
 
 # nom fichier de sortie par défaut
-outfile1=trombi
+out_fn=trombi
 
 # nb de colonnes par défaut
 nb_cols=4
@@ -106,6 +103,12 @@ function process_line_all
 	current_group=$2
 	echo "$firstname $lastname \newline gr $current_group">>$outfile
 
+# print photo filename in debug mode
+	if [ $debug_mode = true ];
+	then
+		echo "-$photo" >>$outfile
+	fi
+
 	(( count_cols += 1 ))
 
 	if [ "$count_cols" -eq "$nb_cols" ]; then
@@ -174,6 +177,13 @@ function process_line
 	if [ "$5" != "" ]; then
 		echo " - $5" >>$outfile
 	fi
+
+# print photo filename in debug mode
+	if [ $debug_mode = true ];
+	then
+		echo "-$photo" >>$outfile
+	fi
+
 	(( count_cols += 1 ))
 
 	if [ "$count_cols" -eq "$nb_cols" ]; then
@@ -262,6 +272,8 @@ cd ..
 echo "trombino $version, https://github.com/skramm/trombino"
 echo " -h pour les options"
 
+debug_mode=false
+
 # etape 1: lecture des parametres
 
 while [ -n "$1" ]; do # while loop starts
@@ -274,12 +286,16 @@ while [ -n "$1" ]; do # while loop starts
 		photos="$2"
 		shift
 		;;
+	-d)
+		debug_mode=true
+		shift
+		;;
 	-c)
 		nb_cols="$2"
 		shift
 		;;
 	-o)
-		outfile1="$2"
+		out_fn="$2"
 		shift
 		;;
 	-s)
@@ -317,9 +333,9 @@ else
 	exit 3
 fi
 
-echo " -Nom du fichier de sortie: ${outfile1}.pdf"
-outfile=BUILD/$outfile1.tex
-outfile_all=BUILD/all.pdf
+echo " -Nom du fichier de sortie: ${out_fn}"
+outfile1=BUILD/${out_fn}_groupes.tex
+outfile2=BUILD/${out_fn}_global.tex
 
 echo " -Nbe colonnes par page=$nb_cols"
 
@@ -368,10 +384,9 @@ if [ ! -f "$header_file" ]; then
 fi
 
 
-
 IFS=,
 
-outfile=BUILD/all.tex
+outfile=$outfile2
 process_header
 while read line; do
 #     echo "line : $line"
@@ -379,12 +394,11 @@ while read line; do
 done < BUILD/global_list_1.csv
 close_source
 
-outfile=all
+outfile=${out_fn}_global
 latex_build
 
 
-
-outfile=BUILD/$outfile1.tex
+outfile=$outfile1
 process_header
 while read line; do
 #     echo "line : $line"
@@ -392,7 +406,7 @@ while read line; do
 done < BUILD/global_list_2.csv
 close_source
 
-outfile=$outfile1
+outfile=${out_fn}_groupes
 latex_build
 
 exit 0
