@@ -29,7 +29,7 @@ im_w=200
 im_h=200
 viewScale=1.0
 gray_image=None
-
+face=None
 iterIdx = 0
 line = 30
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -89,7 +89,6 @@ def drawStuff(face):
 			h0 = int( h1 + 2*deltay )
 			cv2.rectangle(img2, (x0, y0), (x0 + w0, y0 + h0), (255, 255, 0), 2)
 			idx=idx+1
-	
 
 #=====================================================================
 # TRACKBARS CALLBACK FUNCTIONS
@@ -163,7 +162,7 @@ def processDetection():
 #=====================================================================
 # start the GUI and wait for interaction
 def startGUI():
-	global img_src,iterIdx,viewScale,im_w,im_h
+	global img_src,iterIdx,viewScale,im_w,im_h,face
 	
 	app = tkinter.Tk()
 	s_width  = app.winfo_screenwidth()-100
@@ -183,12 +182,14 @@ def startGUI():
 	img2 = cv2.resize(img_src,  (int(img_src.shape[1]/viewScale), int(img_src.shape[0]/viewScale )))
 
 	cv2.namedWindow(window)
+	cv2.moveWindow(window,int(s_width/3),0)
 	cv2.createTrackbar( "Scale Factor",  window , int(tb_scaleFactor*10), 50,             on_trackbar_sf    )
 	cv2.createTrackbar( "min Neighbors", window , tb_minNeighbors,        40,             on_trackbar_mn    )
-	cv2.createTrackbar( "min BB size",   window , tb_minBBsize,           tb_minBBsize*2, on_trackbar_minBB )
+	cv2.createTrackbar( "min BB size",   window , tb_minBBsize,           tb_minBBsize*3, on_trackbar_minBB )
 	while True:
 #		print("loop start")
 		face=processDetection()
+		print("loop: face=",face)
 		drawStuff(face)
 		cv2.imshow(window,img2)
 #		iterIdx=iterIdx+1
@@ -196,11 +197,12 @@ def startGUI():
 		if key == 27:
 			break
 		if key == 32: # SPC
+			print("SPC: face=",face)
 			if len(face) != 1:
-				print("cannot proceed, face not unique")
+				print("Error, cannot proceed, face not unique")
 			else:
 				saveCroppedImage( face )
-				print( "Cropped image saved, exiting")
+				print( "Cropped face image saved, exiting")
 				break;
 
 #=====================================================================
