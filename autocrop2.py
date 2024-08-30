@@ -29,7 +29,7 @@ im_w=200
 im_h=200
 viewScale=1.0
 gray_image=None
-face=None
+#face=None
 iterIdx = 0
 line = 30
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -54,9 +54,9 @@ def printValue( img, txt):
 	line=line+20
 
 #=====================================================================
-def drawStuff(face):
-	print("drawStuff()")
-	global line,img2,im_w,im_h
+def drawStuff():
+#	print("drawStuff()")
+	global face,line,img2,im_w,im_h
 	line=30
 	img2 = cv2.resize(img_src,  (int(img_src.shape[1]/viewScale), int(img_src.shape[0]/viewScale )))
 
@@ -68,10 +68,8 @@ def drawStuff(face):
 	printValue( img2, "minBBsize="+str(tb_minBBsize) )
 	printValue( img2, "maxBBsize="+str(tb_maxBBsize) )
 
-	if len(face) == 0:
-		print( "Failed to find face!")
-	else:
-		print( "Found", face.shape[0], "face" )
+	if len(face) != 0:
+		print( "drawStuff(): Found", face.shape[0], "face" )
 		idx=0
 		for (x, y, w, h) in face:
 			print( " -face",idx,": ", face[idx] )
@@ -95,34 +93,35 @@ def drawStuff(face):
 
 # scaleFactor
 def on_trackbar_sf(val):
-	print("on_trackbar_sf iter=", iterIdx)
-	global tb_scaleFactor
-	tb_scaleFactor = (val+11) / 10
-	print( "scale factor=", tb_scaleFactor )
-	face=processDetection()
-	drawStuff(face)
-	cv2.imshow( window, img2 )
+#	print("on_trackbar_sf iter=", iterIdx)
+	if iterIdx != 1:
+		global tb_scaleFactor
+		tb_scaleFactor = (val+11) / 10
+		print( "scale factor=", tb_scaleFactor )
+		processDetection()
+		drawStuff()
+		cv2.imshow( window, img2 )
 
 # minNeighbors
 def on_trackbar_mn(val):
-	print("on_trackbar_mn iter=", iterIdx)
-#	if iterIdx != 0:
-	global tb_minNeighbors
-	tb_minNeighbors = val
-	print( "minNeighbors=", tb_minNeighbors )
-	face=processDetection()
-	drawStuff(face)
-	cv2.imshow( window, img2 )
+#	print("on_trackbar_mn iter=", iterIdx)
+	if iterIdx != 1:
+		global tb_minNeighbors
+		tb_minNeighbors = val
+		print( "minNeighbors=", tb_minNeighbors )
+		processDetection()
+		drawStuff()
+		cv2.imshow( window, img2 )
 
 def on_trackbar_minBB(val):
-	print("on_trackbar_minBB=", iterIdx)
-#	if iterIdx != 0:
-	global tb_minBBsize
-	tb_minBBsize = val
-	print( "tb_minBBsize=", tb_minBBsize )
-	face=processDetection()
-	drawStuff(face)
-	cv2.imshow( window, img2 )
+#	print("on_trackbar_minBB=", iterIdx)
+	if iterIdx != 1:
+		global tb_minBBsize
+		tb_minBBsize = val
+		print( "tb_minBBsize=", tb_minBBsize )
+		processDetection()
+		drawStuff()
+		cv2.imshow( window, img2 )
 
 
 #=====================================================================
@@ -142,8 +141,8 @@ def saveCroppedImage( face ):
 #=====================================================================
 # main detection function
 def processDetection():
-	print("processDetection()")
-	global iterIdx
+	global iterIdx,face
+#	print("processDetection(): start", iterIdx)
 	iterIdx=iterIdx+1
 
 	face = face_classifier.detectMultiScale(
@@ -154,16 +153,16 @@ def processDetection():
 		,maxSize=(tb_maxBBsize, tb_maxBBsize)
 	)
 	if len(face) == 0:
-		print( "Failed to find face!")
+		print( "processDetection(): Failed to find face!")
 	else:
-		print( "Found face:", face )
-	return face
+		print( "processDetection(): Found face:", face )
+#	return face
 
 #=====================================================================
 # start the GUI and wait for interaction
 def startGUI():
 	global img_src,iterIdx,viewScale,im_w,im_h,face
-	
+	print("START GUI()");
 	app = tkinter.Tk()
 	s_width  = app.winfo_screenwidth()-100
 	s_height = app.winfo_screenheight()-250
@@ -187,17 +186,13 @@ def startGUI():
 	cv2.createTrackbar( "min Neighbors", window , tb_minNeighbors,        40,             on_trackbar_mn    )
 	cv2.createTrackbar( "min BB size",   window , tb_minBBsize,           tb_minBBsize*3, on_trackbar_minBB )
 	while True:
-#		print("loop start")
-		face=processDetection()
-		print("loop: face=",face)
-		drawStuff(face)
+		processDetection()
+		drawStuff()
 		cv2.imshow(window,img2)
-#		iterIdx=iterIdx+1
 		key=cv2.waitKey(0)
 		if key == 27:
 			break
 		if key == 32: # SPC
-			print("SPC: face=",face)
 			if len(face) != 1:
 				print("Error, cannot proceed, face not unique")
 			else:
@@ -215,7 +210,6 @@ if( len(sys.argv) != 3 ):
 fullfname = sys.argv[1]
 dir_out = sys.argv[2]
 fname = os.path.basename(fullfname)
-print( "fullfname=", fullfname )
 
 img_src = cv2.imread(fullfname)
 if img_src is None:
@@ -225,15 +219,16 @@ if img_src is None:
 print( "input image size=", img_src.size, " size=", img_src.shape )
 gray_image = cv2.cvtColor(img_src, cv2.COLOR_BGR2GRAY)
 
+# default minimum BB size: 1/20 of image width
 tb_minBBsize=int(img_src.shape[1]/20)
+# max BB size: half of width
 tb_maxBBsize=int(img_src.shape[1]/2)
 
 face_classifier = cv2.CascadeClassifier(
 	cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
-face = processDetection()
+processDetection()
 
-print("face=",face)
 if len(face) != 1:
 	print( "Failed to find unique face, start interactive GUI" )
 	startGUI()
