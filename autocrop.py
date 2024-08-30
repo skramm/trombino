@@ -48,7 +48,6 @@ face_classifier = cv2.CascadeClassifier(
 face = face_classifier.detectMultiScale(
     gray_image, scaleFactor=scale, minNeighbors=5, minSize=(minBBsize, minBBsize)
 )
-#print( "type of face=", type(face) )
 
 if len(face) == 0:
 	print( "Failed to find face, output file identical to input!" )

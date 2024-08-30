@@ -7,14 +7,15 @@
 #----------------------------------------------
 # Default Parameters, will be adjusted with trackbars
 # see https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
-minBBsize=60
-maxBBsize=120
-scaleFactor=2.0
-minNeighbors=5
-#----------------------------------------------
 
-# used to adapt large images to the screen
-viewScale=1.0
+# will be adjusted to 1/20 of image width
+tb_minBBsize=60
+# will be adjusted to 1/2 of image width
+tb_maxBBsize=120
+
+tb_scaleFactor=2.0
+tb_minNeighbors=5
+#----------------------------------------------
 
 import os
 import sys
@@ -22,58 +23,69 @@ import cv2
 import pathlib
 from pathlib import Path
 
+# used to adapt large images to the screen
+viewScale=1.0
+
 window="calib"
 font = cv2.FONT_HERSHEY_SIMPLEX
 iterIdx=0
-# predeclaration (needed coz used in trackbar callback)
 img=None
 img2=None
+line=30
 
+def printValue( img, txt):
+	global line	
+	cv2.putText( img2, txt, (10,line), font, 0.6, (0,250,250) )
+	line=line+20
 
 #=====================================================================
 # main detection function
 def processDetection():
-	global iterIdx,img2
+	global iterIdx,img2,line
 	iterIdx=iterIdx+1
-
+	line=30
 	img = img_src.copy()
-#	print("viewScale=", viewScale)
+
 	img2 = cv2.resize(img,  (int(img.shape[1]/viewScale), int(img.shape[0]/viewScale )))
+	printValue( img2, str(im_w)+"x"+ str(im_h) )
+	printValue( img2, "viewScale="+str(viewScale) )
+	printValue( img2, "scale="+str(tb_scaleFactor) )
+	printValue( img2, "minNeighbors="+str(tb_minNeighbors) )
+	printValue( img2, "minBBsize="+str(tb_minBBsize) )
+	printValue( img2, "maxBBsize="+str(tb_maxBBsize) )
+
 # this does not work, but it should! (?)
 # see https://docs.opencv.org/4.6.0/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d
 #	img2 = cv2.resize(img, None, 1.0/viewScale, 1.0/viewScale )
 
-	face_classifier = cv2.CascadeClassifier(
-	    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-	)
 	face = face_classifier.detectMultiScale(
 		gray_image
-		,scaleFactor=scaleFactor
-		,minNeighbors=minNeighbors
-		,minSize=(minBBsize, minBBsize)
-#		,maxSize=(maxBBsize, maxBBsize)
+		,scaleFactor=tb_scaleFactor
+		,minNeighbors=tb_minNeighbors
+		,minSize=(tb_minBBsize, tb_minBBsize)
+		,maxSize=(tb_maxBBsize, tb_maxBBsize)
 	)
 	if len(face) == 0:
 		print( "Failed to find face!")
 	else:
-		cv2.putText( img2, str(iterIdx), (10,20), font, 1.0, (0,250,250) )
-
-		print( "Found ", face.shape[0], " face" )
-#		print( " shape r=", face.shape[0], " shape c=", face.shape[1] )
+		print( "Found", face.shape[0], "face" )
+		idx=0
 		for (x, y, w, h) in face:
-			x=int(x/viewScale)
-			y=int(y/viewScale)
-			w=int(w/viewScale)
-			h=int(h/viewScale)
-			cv2.putText( img2, str(w)+"x"+str(h), (x,y), font, 1.0, (0,250,250) )
-			cv2.rectangle(img2, (x, y), (x + w, y + h), (128, 255, 0), 2)
-			deltax=w/3
-			deltay=h/2
-			x0 = int( x - deltax   )
-			y0 = int( y - deltay   )
-			w0 = int( w + 2*deltax )
-			h0 = int( h + 2*deltay )
+			print( " -face",idx,": ", face[idx] )
+			x1=int(x/viewScale)
+			y1=int(y/viewScale)
+			w1=int(w/viewScale)
+			h1=int(h/viewScale)
+			cv2.putText( img2, str(w)+"x"+str(h), (x1,y1), font, 1.0, (0,250,250) )
+			cv2.rectangle(img2, (x1, y1), (x1 + w1, y1 + h1), (128, 255, 0), 2)
+			deltax=w1/3
+			deltay=h1/2
+			x0 = int( x1 - deltax   )
+			y0 = int( y1 - deltay   )
+			w0 = int( w1 + 2*deltax )
+			h0 = int( h1 + 2*deltay )
 			cv2.rectangle(img2, (x0, y0), (x0 + w0, y0 + h0), (255, 255, 0), 2)
+			idx=idx+1
 
 	cv2.imshow(window,img2)
 
@@ -83,8 +95,9 @@ def processDetection():
 # scaleFactor
 def on_trackbar_sf(val):
 	if iterIdx != 0:
-		scaleFactor = val / 10
-		print( "scale factor=", scaleFactor )
+		global tb_scaleFactor
+		tb_scaleFactor = (val+11) / 10
+#		print( "scale factor=", tb_scaleFactor )
 		processDetection()
 		if img != None: 
 			cv2.imshow( window, img2 )
@@ -92,8 +105,9 @@ def on_trackbar_sf(val):
 # minNeighbors
 def on_trackbar_mn(val):
 	if iterIdx != 0:
-		minNeighbors = val
-		print( "minNeighbors=", minNeighbors )
+		global tb_minNeighbors
+		tb_minNeighbors = val
+#		print( "minNeighbors=", tb_minNeighbors )
 		processDetection()
 		if img != None: 
 			cv2.imshow( window, img2 )
@@ -101,21 +115,23 @@ def on_trackbar_mn(val):
 # minSize
 def on_trackbar_min(val):
 	if iterIdx != 0:
-		minBBsize = val
-		print( "minBBsize=", minBBsize )
+		global tb_minBBsize
+		tb_minBBsize = val
+#		print( "minBBsize=", tb_minBBsize )
 		processDetection()
 		if img != None: 
 			cv2.imshow( window, img2 )
-
+'''
 # maxSize
 def on_trackbar_max(val):
 	if iterIdx != 0:
-		maxBBsize = val
-		print( "maxBBsize=", maxBBsize )
+		global tb_maxBBsize
+		tb_maxBBsize = val
+		print( "maxBBsize=", tb_maxBBsize )
 		processDetection()
 		if img != None: 
 			cv2.imshow( window, img2 )
-
+'''
 
 #=====================================================================
 # BEGIN
@@ -153,13 +169,19 @@ if (im_w>s_width or im_h>s_height):
 	
 gray_image = cv2.cvtColor(img_src, cv2.COLOR_BGR2GRAY)
 
+tb_minBBsize=int(img_src.shape[1]/20)
+tb_maxBBsize=int(img_src.shape[1]/2)
+
 cv2.namedWindow(window)
 
-cv2.createTrackbar( "Scale Factor",  window , int(scaleFactor*10), 50, on_trackbar_sf)
-cv2.createTrackbar( "min Neighbors", window , minNeighbors,        40, on_trackbar_mn)
-cv2.createTrackbar( "min size",      window , minBBsize,           minBBsize*10, on_trackbar_min )
-cv2.createTrackbar( "max size",      window , maxBBsize,           int(img_src.shape[1]/2), on_trackbar_max )
+cv2.createTrackbar( "Scale Factor",  window , int(tb_scaleFactor*10), 50, on_trackbar_sf)
+cv2.createTrackbar( "min Neighbors", window , tb_minNeighbors,        40, on_trackbar_mn)
+cv2.createTrackbar( "min size",      window , tb_minBBsize,           int(img_src.shape[1]/2), on_trackbar_min )
+#cv2.createTrackbar( "max size",      window , tb_maxBBsize,           int(img_src.shape[1]/2), on_trackbar_max )
 
+face_classifier = cv2.CascadeClassifier(
+	cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+)
 
 while True:
 	processDetection()
