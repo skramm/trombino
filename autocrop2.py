@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
+'''
+Interactive version of face auto-cropping:
+if no face is found, will start a GUI (Openv-based) so
+that user can test parameters. Once OK, press space, save image, and move on.
+If no correct parameters can be found, just hit ESC, and image will be saved "as-is".
 
-# interactive version, if no face is found, will ask for
-# manual parameter adjustement with trackbars
-
-# src: https://www.datacamp.com/tutorial/face-detection-python-opencv
+Based on: https://www.datacamp.com/tutorial/face-detection-python-opencv
+ 
+- Green rectangle: actual detection
+- Blue rectangle: the part that will be cropped 
+'''
 
 # 2 arguments required
 # -1: filename (with path, say "my/folder/photo_12345.jpg")
 # -2: output folder
-
-#----------------------------------------------
-# PARAMETERS (adjust if needed)
-# see https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
-minBBsize=60
-scale=2.0
-#----------------------------------------------
 
 
 import os
@@ -30,12 +29,15 @@ im_w=200
 im_h=200
 viewScale=1.0
 gray_image=None
-tb_scaleFactor=2.0
-tb_minNeighbors=5
+
 iterIdx = 0
 line = 30
 font = cv2.FONT_HERSHEY_SIMPLEX
-guiMode=False
+
+
+#----------------------------------------------
+# Default parameters 
+# see https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
 
 tb_minBBsize=60
 tb_maxBBsize=120
@@ -52,7 +54,8 @@ def printValue( img, txt):
 	line=line+20
 
 #=====================================================================
-def drawStuff():
+def drawStuff(face):
+	print("drawStuff()")
 	global line,img2,im_w,im_h
 	line=30
 	img2 = cv2.resize(img_src,  (int(img_src.shape[1]/viewScale), int(img_src.shape[0]/viewScale )))
@@ -65,6 +68,29 @@ def drawStuff():
 	printValue( img2, "minBBsize="+str(tb_minBBsize) )
 	printValue( img2, "maxBBsize="+str(tb_maxBBsize) )
 
+	if len(face) == 0:
+		print( "Failed to find face!")
+	else:
+		print( "Found", face.shape[0], "face" )
+		idx=0
+		for (x, y, w, h) in face:
+			print( " -face",idx,": ", face[idx] )
+			x1=int(x/viewScale)
+			y1=int(y/viewScale)
+			w1=int(w/viewScale)
+			h1=int(h/viewScale)
+			cv2.putText( img2, str(w)+"x"+str(h), (x1,y1), font, 1.0, (0,250,250) )
+			cv2.rectangle(img2, (x1, y1), (x1 + w1, y1 + h1), (128, 255, 0), 2)
+			deltax=w1/3
+			deltay=h1/2
+			x0 = int( x1 - deltax   )
+			y0 = int( y1 - deltay   )
+			w0 = int( w1 + 2*deltax )
+			h0 = int( h1 + 2*deltay )
+			cv2.rectangle(img2, (x0, y0), (x0 + w0, y0 + h0), (255, 255, 0), 2)
+			idx=idx+1
+	
+
 #=====================================================================
 # TRACKBARS CALLBACK FUNCTIONS
 
@@ -74,8 +100,8 @@ def on_trackbar_sf(val):
 	global tb_scaleFactor
 	tb_scaleFactor = (val+11) / 10
 	print( "scale factor=", tb_scaleFactor )
-	processDetection()
-	drawStuff()
+	face=processDetection()
+	drawStuff(face)
 	cv2.imshow( window, img2 )
 
 # minNeighbors
@@ -85,8 +111,8 @@ def on_trackbar_mn(val):
 	global tb_minNeighbors
 	tb_minNeighbors = val
 	print( "minNeighbors=", tb_minNeighbors )
-	processDetection()
-	drawStuff()
+	face=processDetection()
+	drawStuff(face)
 	cv2.imshow( window, img2 )
 
 def on_trackbar_minBB(val):
@@ -95,8 +121,8 @@ def on_trackbar_minBB(val):
 	global tb_minBBsize
 	tb_minBBsize = val
 	print( "tb_minBBsize=", tb_minBBsize )
-	processDetection()
-	drawStuff()
+	face=processDetection()
+	drawStuff(face)
 	cv2.imshow( window, img2 )
 
 
@@ -117,18 +143,9 @@ def saveCroppedImage( face ):
 #=====================================================================
 # main detection function
 def processDetection():
+	print("processDetection()")
 	global iterIdx
 	iterIdx=iterIdx+1
-#	global iterIdx,img2,line
-	
-#	line=30
-#	if guiMode == True:
-#		img = img_src.copy()
-
-
-# this does not work, but it should! (?)
-# see https://docs.opencv.org/4.6.0/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d
-#	img2 = cv2.resize(img, None, 1.0/viewScale, 1.0/viewScale )
 
 	face = face_classifier.detectMultiScale(
 		gray_image
@@ -146,8 +163,7 @@ def processDetection():
 #=====================================================================
 # start the GUI and wait for interaction
 def startGUI():
-	global guiMode,img_src,iterIdx,viewScale,im_w,im_h
-	guiMode=True
+	global img_src,iterIdx,viewScale,im_w,im_h
 	
 	app = tkinter.Tk()
 	s_width  = app.winfo_screenwidth()-100
@@ -171,12 +187,9 @@ def startGUI():
 	cv2.createTrackbar( "min Neighbors", window , tb_minNeighbors,        40,             on_trackbar_mn    )
 	cv2.createTrackbar( "min BB size",   window , tb_minBBsize,           tb_minBBsize*2, on_trackbar_minBB )
 	while True:
-		print("loop start")
-#		face=processDetection()
-#		drawStuff()
-#		img = img_src.copy()
-
-		img2 = cv2.resize(img_src,  (int(img_src.shape[1]/viewScale), int(img_src.shape[0]/viewScale )))
+#		print("loop start")
+		face=processDetection()
+		drawStuff(face)
 		cv2.imshow(window,img2)
 #		iterIdx=iterIdx+1
 		key=cv2.waitKey(0)
@@ -224,19 +237,5 @@ if len(face) != 1:
 	startGUI()
 else:
 	saveCroppedImage( face )
-
-#print( "nd rect=", face )
-#print( "size=", face.size, " ndim=", face.ndim, " shape=", face.shape )
-#print( " shape r=", face.shape[0], " shape c=", face.shape[1] )
-
-#if( face.shape[0] != 1 ):
-#	print( "Failure, found ", face.shape[0], " faces in file ", sys.argv[1] )
-#	exit(4)
-
-#for (x, y, w, h) in face:
-#    cv2.rectangle(img, (x, y), (x + w, y + h), (128, 255, 0), 4)
-
-	
-
 
 

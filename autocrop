@@ -13,10 +13,10 @@ fi
 
 mkdir -p "$2"
 
-for fn in "$1/*"
+for fn in $1/*
 do
 	echo "- processing file $fn"
-	trombino_autocrop.py "$fn" "$2"
+	trombino_autocrop_gui.py "$fn" "$2"
 	errval=$?
 	if ! [ $errval = 0 ]
 	then
