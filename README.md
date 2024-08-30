@@ -91,7 +91,7 @@ Des données de démo dont incluses, vous pouvez tester directement.
 Il y a:
 
 * une liste de noms (thx: https://fossbytes.com/tools/random-name-generator)
-* une liste de "photos" (thx: https://multiavatar.com/)
+* une liste de "photos" (thx: https://multiavatar.com/).
 Ces avatars sont générés via le script `gen_avatars.sh` (requires Imagemagick)
 
 Tapez la commande suivante dans le dossier racine, une fois le repo cloné:
@@ -108,11 +108,28 @@ $ ./trombino -c 5
 ## Extension optionnelle: auto-cropping
 
 L'un des points faible de ce programme est le fait qu'il nécessite en pratique un "cropping" des photos.
-En effet, en général, le cadrage fait qu'il est peu pratique d'avoir dès la prise de vue un cadrage type "photo d'indentité".
+En effet, en général le cadrage fait qu'il est peu pratique d'avoir dès la prise de vue un cadrage type "photo d'identité".
 Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux (et donc, non).
-On peut l'automatiser via un script qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédeterminer la bonne "bounding box", ce qui prend du temps.
-Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le copping identique pour toutes les photos va générer des "coupages de têtes".
+On peut aussi l'automatiser via un script (utilisant par exemple imagemagick) qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédeterminer la bonne "bounding box", ce qui prend du temps.
+Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le cropping identique pour toutes les photos va générer des "coupages de têtes".
 
-Depuis 2024/09, une extension utilisant la biliothèque OpenCv est inclue, qui permet d'avoir un cropping automatique, par une détection de visage dans la photo.
+Depuis 2024/09, une extension utilisant la bibliothèque OpenCv est incluse, qui permet d'avoir un cropping automatique, par une détection de visage dans la photo.
+
+L'utilisation de fait via l'appel du programme `autocrop`, qui prend deux arguments.
+Le premier est le nom du dossier dans lequel se trouve les photos brutes.
+Le second est le nom du dossier dans lequel seront placés les images "croppées"
+(sera crée s'il n'existe pas).
+
+Ce script bash lance pour chaque photo le programme Python `trombino_autocrop_gui.py`
+qui va lancer une cascade de classifieurs pour tenter de trouver un visage
+(voir
+https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
+pour des détails), avec des valeurs de paramètres par défaut.
+Si les paramètres par défaut ne trouvent pas de visage, alors une interface graphique est démarrée
+(basée sur le module "HighGui" de OpenCV).
+Des sliders permettent d'ajuster les paramètres, le plus important étant l'échelle ("scale").
+Une fois un visage trouvé, il faut alors appuyer sur "espace" pour sauvegarder l'image "croppée".
+
+Dans le cas où il s'agit d'une photo "vide", un appui sur ESC va sauvegarder la photo telle quelle.
 
 
