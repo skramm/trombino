@@ -27,21 +27,21 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 iterIdx=0
 # predeclaration (needed coz used in trackbar callback)
 img=None
+img2=None
 
-'''
-scaleFactor	Parameter specifying how much the image size is reduced at each image scale.
-minNeighbors	Parameter specifying how many neighbors each candidate rectangle should have to retain it.
-flags	Parameter with the same meaning for an old cascade as in the function cvHaarDetectObjects. It is not used for a new cascade.
-minSize	Minimum possible object size. Objects smaller than that are ignored.
-maxSize
-'''
 
+#=====================================================================
+# main detection function
 def processDetection():
-	global iterIdx
+	global iterIdx,img2
 	iterIdx=iterIdx+1
 
 	img = img_src.copy()
-	print( "Detection: image size=", img.size, " shape=", img.shape )
+#	print("viewScale=", viewScale)
+	img2 = cv2.resize(img,  (int(img.shape[1]/viewScale), int(img.shape[0]/viewScale )))
+# this does not work, but it should! (?)
+# see https://docs.opencv.org/4.6.0/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d
+#	img2 = cv2.resize(img, None, 1.0/viewScale, 1.0/viewScale )
 
 	face_classifier = cv2.CascadeClassifier(
 	    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
@@ -56,57 +56,65 @@ def processDetection():
 	if len(face) == 0:
 		print( "Failed to find face!")
 	else:
-		cv2.putText( img, str(iterIdx), (10,20), font, 1.0, (0,250,250) )
+		cv2.putText( img2, str(iterIdx), (10,20), font, 1.0, (0,250,250) )
 
-		print( "size=", face.size, " ndim=", face.ndim, " shape=", face.shape )
-		print( " shape r=", face.shape[0], " shape c=", face.shape[1] )
+		print( "Found ", face.shape[0], " face" )
+#		print( " shape r=", face.shape[0], " shape c=", face.shape[1] )
 		for (x, y, w, h) in face:
-			cv2.putText( img, str(w)+"x"+str(h), (x,y), font, 1.0, (0,250,250) )
-			cv2.rectangle(img, (x, y), (x + w, y + h), (128, 255, 0), 2)
+			x=int(x/viewScale)
+			y=int(y/viewScale)
+			w=int(w/viewScale)
+			h=int(h/viewScale)
+			cv2.putText( img2, str(w)+"x"+str(h), (x,y), font, 1.0, (0,250,250) )
+			cv2.rectangle(img2, (x, y), (x + w, y + h), (128, 255, 0), 2)
 			deltax=w/3
 			deltay=h/2
 			x0 = int( x - deltax   )
 			y0 = int( y - deltay   )
 			w0 = int( w + 2*deltax )
 			h0 = int( h + 2*deltay )
-			cv2.rectangle(img, (x0, y0), (x0 + w0, y0 + h0), (255, 255, 0), 2)
+			cv2.rectangle(img2, (x0, y0), (x0 + w0, y0 + h0), (255, 255, 0), 2)
 
-	cv2.imshow(window,img)
+	cv2.imshow(window,img2)
 
 #=====================================================================
 # TRACKBAR CALLBACK FUNCTIONS
 
 # scaleFactor
 def on_trackbar_sf(val):
-	scaleFactor = val / 10
-	print( "scale factor=", scaleFactor )
-	processDetection()
-	if img != None: 
-		cv2.imshow( window, img )
+	if iterIdx != 0:
+		scaleFactor = val / 10
+		print( "scale factor=", scaleFactor )
+		processDetection()
+		if img != None: 
+			cv2.imshow( window, img2 )
 
 # minNeighbors
 def on_trackbar_mn(val):
-	minNeighbors = val
-	print( "minNeighbors=", minNeighbors )
-	processDetection()
-	if img != None: 
-		cv2.imshow( window, img )
+	if iterIdx != 0:
+		minNeighbors = val
+		print( "minNeighbors=", minNeighbors )
+		processDetection()
+		if img != None: 
+			cv2.imshow( window, img2 )
 
 # minSize
 def on_trackbar_min(val):
-	minBBsize = val
-	print( "minBBsize=", minBBsize )
-	processDetection()
-	if img != None: 
-		cv2.imshow( window, img )
+	if iterIdx != 0:
+		minBBsize = val
+		print( "minBBsize=", minBBsize )
+		processDetection()
+		if img != None: 
+			cv2.imshow( window, img2 )
 
 # maxSize
 def on_trackbar_max(val):
-	maxBBsize = val
-	print( "maxBBsize=", maxBBsize )
-	processDetection()
-	if img != None: 
-		cv2.imshow( window, img )
+	if iterIdx != 0:
+		maxBBsize = val
+		print( "maxBBsize=", maxBBsize )
+		processDetection()
+		if img != None: 
+			cv2.imshow( window, img2 )
 
 
 #=====================================================================
@@ -114,8 +122,8 @@ def on_trackbar_max(val):
 
 import tkinter
 app = tkinter.Tk()
-s_width  = app.winfo_screenwidth()
-s_height = app.winfo_screenheight()
+s_width  = app.winfo_screenwidth()-100
+s_height = app.winfo_screenheight()-250
 
 if( len(sys.argv) != 2 ):
 	print( "Error, require 1 argument: filename" )
@@ -136,6 +144,7 @@ im_h = img_src.shape[0]
 if (im_w>s_width or im_h>s_height):
 	k_w = im_w/s_width
 	k_h = im_h/s_height
+	print("k_w=",k_w, " k_h=", k_h )
 	viewScale=k_w
 	if k_h>k_w:
 		viewScale=k_h
@@ -146,9 +155,9 @@ gray_image = cv2.cvtColor(img_src, cv2.COLOR_BGR2GRAY)
 
 cv2.namedWindow(window)
 
-cv2.createTrackbar( "Scale Factor",  window , int(scaleFactor*10), 30, on_trackbar_sf)
-cv2.createTrackbar( "min Neighbors", window , minNeighbors,        20, on_trackbar_mn)
-cv2.createTrackbar( "min size",      window , minBBsize,           minBBsize*2, on_trackbar_min )
+cv2.createTrackbar( "Scale Factor",  window , int(scaleFactor*10), 50, on_trackbar_sf)
+cv2.createTrackbar( "min Neighbors", window , minNeighbors,        40, on_trackbar_mn)
+cv2.createTrackbar( "min size",      window , minBBsize,           minBBsize*10, on_trackbar_min )
 cv2.createTrackbar( "max size",      window , maxBBsize,           int(img_src.shape[1]/2), on_trackbar_max )
 
 
