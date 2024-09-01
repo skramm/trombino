@@ -6,7 +6,7 @@
 
 set +x
 
-version=1.2
+version=1.2.1
 
 # dossier par défaut contenant les photos
 photos=photos/
@@ -221,7 +221,6 @@ echo "\end{document}" >>$outfile
 # ----------------------------------------------------------------------------
 function process_header
 {
-
 cat $header_file >$outfile
 
 if [ -f entete_ecole.txt ]; then
@@ -372,15 +371,17 @@ if [ ! -f BUILD/global_list_2.csv ]; then
 fi
 
 # Génération du .tex
-
-if [ ! -f "$header_file" ]; then
+if [ ! -f "$header_file" ];
+	then
 	if [ ! -f "/etc/trombino/$header_file" ]; then
-	    echo " -Erreur: fichier d'en-tête introuvable"
+	    echo " -Erreur d'installation: fichier d'en-tête introuvable"
 	    exit 5
 	else
 		header_file=/etc/trombino/$header_file
 		echo " -Utilisation de l'en-tete par défaut $header_file"
 	fi
+else
+	echo " -!!! Utilisation du fichier d'en tête local !!!"
 fi
 
 
