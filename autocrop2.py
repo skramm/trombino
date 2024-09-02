@@ -203,6 +203,7 @@ def startGUI():
 #=====================================================================
 # PROGRAM START
 
+print( "Installed Opencv version:", cv2.__version__ )
 if( len(sys.argv) != 3 ):
 	print( "Error, require 2 arguments" )
 	exit(1)
@@ -215,6 +216,8 @@ img_src = cv2.imread(fullfname)
 if img_src is None:
 	print( "failed to read image, quitting..." )
 	exit(2)
+
+
 	
 print( "input image size=", img_src.size, " size=", img_src.shape )
 gray_image = cv2.cvtColor(img_src, cv2.COLOR_BGR2GRAY)

@@ -110,15 +110,25 @@ $ ./trombino -c 5
 L'un des points faible de ce programme est le fait qu'il nécessite en pratique un "cropping" des photos.
 En effet, en général le cadrage fait qu'il est peu pratique d'avoir dès la prise de vue un cadrage type "photo d'identité".
 Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux (et donc, non).
-On peut aussi l'automatiser via un script (utilisant par exemple imagemagick) qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédeterminer la bonne "bounding box", ce qui prend du temps.
-Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le cropping identique pour toutes les photos va générer des "coupages de têtes".
+On peut aussi l'automatiser via un script (utilisant par exemple [imagemagick](https://imagemagick.org/)) qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédeterminer la bonne "bounding box", ce qui prend du temps.
+Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le cropping identique pour toutes les photos va générer soit des "coupages de têtes", soit des images un peu trop "larges".
 
-Depuis 2024/09, une extension utilisant la bibliothèque OpenCv est incluse, qui permet d'avoir un cropping automatique, par une détection de visage dans la photo.
+Depuis 2024/09, une extension utilisant la bibliothèque OpenCv est incluse et permet d'avoir un **cropping automatique**, par une détection de visage dans la photo.
+Il faut donc avoir Opencv installé localement, mais il semble que ceci soit assez facile, via:
+```
+$ pip install opencv-python
+```
+Ceci a été testé avec la version 4.5.5, mais devrait aussi fonctionner avec des versions 3.
 
 L'utilisation de fait via l'appel du programme `autocrop`, qui prend deux arguments.
 Le premier est le nom du dossier dans lequel se trouve les photos brutes.
 Le second est le nom du dossier dans lequel seront placés les images "croppées"
 (sera crée s'il n'existe pas).
+
+Par exemple:
+```
+$ autocrop src dst
+```
 
 Ce script bash lance pour chaque photo le programme Python `trombino_autocrop_gui.py`
 qui va lancer une cascade de classifieurs pour tenter de trouver un visage
