@@ -135,7 +135,13 @@ def saveCroppedImage( face ):
 
 	#cv2.rectangle(img, (x0, y0), (x0 + w0, y0 + h0), (0, 255, 0), 4)
 
+	print( "cropped:", x0, y0, w0, h0, "name=", dir_out+"/"+fname )
+	if (x0<0 or y0<0):
+		print( "ERREUR: coordonnées négative, relancer avec l'option -m" )
+		exit(6)
+	
 	img_out = gray_image[y0:y0+h0,x0:x0+w0]
+	print( "im size=", img_out.size, " shape=", img_out.shape )
 	cv2.imwrite(dir_out+"/"+fname,img_out)
 
 #=====================================================================
@@ -204,7 +210,7 @@ def startGUI():
 # PROGRAM START
 
 print( "Installed Opencv version:", cv2.__version__ )
-if( len(sys.argv) != 3 ):
+if( len(sys.argv) < 3 ):
 	print( "Error, require 2 arguments" )
 	exit(1)
 	
@@ -214,12 +220,11 @@ fname = os.path.basename(fullfname)
 
 img_src = cv2.imread(fullfname)
 if img_src is None:
-	print( "failed to read image, quitting..." )
+	print( "failed to read image '"+fullfname+"', quitting..." )
 	exit(2)
 
 
-	
-print( "input image size=", img_src.size, " size=", img_src.shape )
+print( "input image: w=", img_src.shape[1], "h=", img_src.shape[0] )
 gray_image = cv2.cvtColor(img_src, cv2.COLOR_BGR2GRAY)
 
 # default minimum BB size: 1/20 of image width

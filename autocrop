@@ -1,22 +1,36 @@
 #!/usr/bin/env bash
 
+set +x
 # args:
 # 1: input folder where the photos are (must exist!)
 # 2: name of output folder (will be created)
 
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -lt 2 ]; then
     echo "2 arguments requested"
     exit 1
 fi
 
+# etape 1: lecture des parametres
 
-mkdir -p "$2"
+src_dir=$1
+dst_dir=$2
 
-for fn in $1/*
+modemanual=0
+if [ "$1" = "-m" ]
+then
+	modemanual=1
+	src_dir=$2
+	dst_dir=$3
+fi
+
+
+mkdir -p "$dst_dir"
+
+for fn in $src_dir/*
 do
 	echo "- processing file $fn"
-	trombino_autocrop_gui.py "$fn" "$2"
+	trombino_autocrop_gui.py "$fn" "$dst_dir" $modemanual
 	errval=$?
 	if ! [ $errval = 0 ]
 	then
