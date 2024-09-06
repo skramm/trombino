@@ -138,7 +138,7 @@ def saveCroppedImage( face ):
 
 	print( "cropped:", x0, y0, w0, h0, "name=", dir_out+"/"+fname )
 	if (x0<0 or y0<0):
-		print( "ERREUR: coordonnées négative, relancer avec l'option -m" )
+		print( "ERREUR: negatives coordinates, restart with -m switch" )
 		exit(6)
 	
 	img_out = gray_image[y0:y0+h0,x0:x0+w0]
@@ -198,6 +198,8 @@ def startGUI():
 		cv2.imshow(window,img2)
 		key=cv2.waitKey(0)
 		if key == 27:
+			cv2.imwrite(dir_out+"/"+fname,img_out)
+			exit(1)
 			break
 		if key == 32: # SPC
 			if len(face) != 1:
@@ -205,6 +207,7 @@ def startGUI():
 			else:
 				saveCroppedImage( face )
 				print( "Cropped face image saved, exiting")
+				exit(0)
 				break;
 
 #=====================================================================
@@ -212,7 +215,7 @@ def startGUI():
 
 print( "Installed Opencv version:", cv2.__version__ )
 if( len(sys.argv) < 3 ):
-	print( "Error, require 2 arguments" )
+	print( "Error, requires 2 arguments" )
 	exit(1)
 
 fullfname = sys.argv[1]

@@ -155,7 +155,7 @@ Par exemple:
 $ autocrop src dst
 ```
 
-Ce programm est un script bash qui lance pour chaque fichier du dossier de photos le programme Python `trombino_autocrop_gui.py`.
+Ce programe est un script bash qui lance pour chaque fichier du dossier de photos le programme Python `trombino_autocrop_gui.py`.
 Ce dernier va lancer lancer une cascade de classifieurs pour tenter de trouver un visage
 (voir
 https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
@@ -163,7 +163,7 @@ pour des détails), avec des valeurs de paramètres par défaut.
 Si les paramètres par défaut ne trouvent pas de visage, alors une interface graphique est démarrée
 (basée sur le module "HighGui" de OpenCV).
 Des sliders permettent d'ajuster les paramètres, le plus important étant l'échelle ("scale").
-Une fois un visage trouvé, il faut alors appuyer sur "espace" pour sauvegarder l'image "croppée".
+Une fois un visage trouvé, il faut alors appuyer sur "espace" pour sauvegarder l'image recadrée.
 
 Dans le cas où il s'agit d'une photo "vide", un appui sur ESC va sauvegarder la photo telle quelle.
 
