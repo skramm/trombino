@@ -11,7 +11,7 @@ Based on: https://www.datacamp.com/tutorial/face-detection-python-opencv
 - Blue rectangle: the part that will be cropped 
 '''
 
-# 2 arguments required
+# 2 arguments min required
 # -1: filename (with path, say "my/folder/photo_12345.jpg")
 # -2: output folder
 
@@ -23,6 +23,7 @@ import pathlib
 import tkinter
 from pathlib import Path
 
+appname="guicrop:"
 img_src=None
 img2=None
 im_w=200
@@ -213,9 +214,22 @@ print( "Installed Opencv version:", cv2.__version__ )
 if( len(sys.argv) < 3 ):
 	print( "Error, require 2 arguments" )
 	exit(1)
-	
+
 fullfname = sys.argv[1]
 dir_out = sys.argv[2]
+
+print( appname, "argv=", len(sys.argv) )
+
+manualmode = False
+if sys.argv[1] == "-m":
+	print( appname, "Manual mode for all")
+	fullfname = sys.argv[2]
+	manualmode = True
+	if( len(sys.argv) < 4 ):
+		print( "Error, require output folder")
+		exit(1)
+	dir_out = sys.argv[3]
+	
 fname = os.path.basename(fullfname)
 
 img_src = cv2.imread(fullfname)
@@ -237,10 +251,13 @@ face_classifier = cv2.CascadeClassifier(
 )
 processDetection()
 
-if len(face) != 1:
-	print( "Failed to find unique face, start interactive GUI" )
+if manualmode:
 	startGUI()
 else:
-	saveCroppedImage( face )
+	if len(face) != 1:
+		print( "Failed to find unique face, start interactive GUI" )
+		startGUI()
+	else:
+		saveCroppedImage( face )
 
 
