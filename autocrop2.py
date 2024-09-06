@@ -219,6 +219,8 @@ fullfname = sys.argv[1]
 dir_out = sys.argv[2]
 
 print( appname, "argv=", len(sys.argv) )
+print( "sys.argv[1]="+ sys.argv[1] )
+
 
 manualmode = False
 if sys.argv[1] == "-m":

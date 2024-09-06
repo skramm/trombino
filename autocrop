@@ -33,7 +33,7 @@ mkdir -p "$dst_dir"
 for fn in $src_dir/*
 do
 	echo "-autocrop: processing file $fn"
-	trombino_autocrop_gui.py "$fn" "$dst_dir" $modemanual
+	trombino_autocrop_gui.py $modemanual "$fn" "$dst_dir" 
 	errval=$?
 	if ! [ $errval = 0 ]
 	then
