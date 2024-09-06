@@ -94,6 +94,9 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 <br>Par exemple, `-o aaa` produira les deux fichiers `aaa_global.pdf` et `aaa_groupes.pdf`
 * `-c`: pour modifier le nombre de colonnes. La taille des photos est automatiquement ajustée.
 * `-s`: permute nom - prénom
+* `-f`: permet de spécifier le séparateur de champs du fichier "liste". C'est ',' par défaut.
+On peut le changer pour des ';' avec `-f ";"`.
+A noter que l'usage de l'espace (ASCII 32) est déconseillé, comme il est probable d'avoir des étudiants avec des noms composés.
 * `-h`: affiche cette aide
 * `-d`: active le mode "debug", ce qui imprimera le nom du fichier de la photo avec la photo
 (utile en cas d'erreur nom/photo)
@@ -119,15 +122,18 @@ Vous pouvez aussi essayer ceci pour voir les mêmes données en 5 colonnes:
 $ ./trombino -c 5
 ```
 
-## 5 - Extension optionnelle: cropping de recadrage
+## 5 - Extension optionnelle: recadrage assisté
 
+### 5.1 - Introduction
 L'un des problèmes que l'on rencontre avec cette approche est le fait qu'il nécessite en pratique un "cropping" des photos.
 En effet, en général le cadrage fait qu'il est peu pratique d'avoir dès la prise de vue un cadrage type "photo d'identité".
-Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux (et donc, non).
+Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux (et donc, non, on oublie).
 On peut aussi l'automatiser via un script (utilisant par exemple [imagemagick](https://imagemagick.org/)) qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédéterminer la bonne "bounding box", ce qui prend du temps.
-Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le cropping identique pour toutes les photos va générer soit des "coupages de têtes", soit des images avec un cadrage un peu trop "larges".
+Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, un peu trop à droite, et donc le cropping identique pour toutes les photos va générer soit des "coupages de têtes", soit des images avec un cadrage un peu trop "large".
 
-Depuis 2024/09, une extension utilisant Python3 et la bibliothèque OpenCv est incluse dans ce projet et permet d'avoir un **cropping automatique**, par une détection de visage dans la photo.
+Depuis 2024/09, une extension utilisant Python3 et la bibliothèque OpenCv est incluse dans ce projet et permet d'avoir un **cropping assisté**, par une détection de visage dans la photo.
+
+### 5.2 - Outils nécessaires
 Il faut donc avoir ces deux outils installé localement (Python3 est en général déjà présent).
 Pour Opencv, l'installation est assez facile, via:
 ```
@@ -135,9 +141,13 @@ $ pip install opencv-python
 ```
 Ceci a été testé avec la version 4.5.5, mais devrait aussi fonctionner avec des versions 3.
 
-L'utilisation se fait via l'appel du programme `autocrop`, qui prend deux arguments.
-Le premier est le nom du dossier dans lequel se trouve les photos brutes.
-Le second est le nom du dossier dans lequel seront placés les images "croppées"
+### 5.3 - Utilisation
+
+L'utilisation se fait via l'appel du programme `autocrop` depuis le dossier courant.
+Ce programme prend deux arguments:
+
+- Le premier est le nom du dossier dans lequel se trouve les photos brutes.
+- Le second est le nom du dossier dans lequel seront placés les images "croppées"
 (sera crée s'il n'existe pas).
 
 Par exemple:
@@ -145,8 +155,8 @@ Par exemple:
 $ autocrop src dst
 ```
 
-Ce script bash lance pour chaque photo le programme Python `trombino_autocrop_gui.py`
-qui va lancer une cascade de classifieurs pour tenter de trouver un visage
+Ce programm est un script bash qui lance pour chaque fichier du dossier de photos le programme Python `trombino_autocrop_gui.py`.
+Ce dernier va lancer lancer une cascade de classifieurs pour tenter de trouver un visage
 (voir
 https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
 pour des détails), avec des valeurs de paramètres par défaut.
