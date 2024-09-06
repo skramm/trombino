@@ -6,47 +6,61 @@ Génération de trombinoscope en pdf automatique, à partir d'une liste et d'un 
 * home page: https://github.com/skramm/trombino
 * licence: [WTFPL](https://en.wikipedia.org/wiki/WTFPL)
 
-Calibré pour des groupes de 3-16..20 personnes par page, pour une année d'une promo de type universitaire (20-100 ou plus personnes, réparties en plusieurs groupes).
+Outil en ligne de commande, calibré pour des groupes jusqu'à 20 personnes par page, pour une année d'une promo de type universitaire (20-100 ou plus personnes, réparties en plusieurs groupes).
 
 
-## Exemple de résultat (réel)
+## 1- Exemple de résultat (réel)
+
+(mais avec des photos anonymisées, pour des raisons évidentes)
 
 ![exemple](trombi_1_800.jpg)
 
 
-## Outils nécessaires
+
+## 2 - Installation
+
+## 2.1 - Outils nécessaires
 * bash (incluant le calculateur `bc`)
 * LaTeX, avec le package `tabularx`
+* Python3 & Opencv, pour l'extension de cropping (voir section "Extension")
 
-## Installation
+Tout ceci a été developpé sous Linux/Ubuntu et devrai donc fonctionner sans problème sur des OS basés Linux,
+mais ces outils étant assez commun, un usage sous Mac/OSX devrait pouvoir fonctionner également (non-testé!).
+Pour ceux travaillant (encore) sous Windows, je vous laisse essayer.
 
-Il est possible d'utiliser le programme directement depuis le dépot cloné.
-Mais il est préférable de l'installer sur la machine, via:
+
+## 2.2 - Téléchargement et installation
+
+Le plus simple consiste à cloner le dépot localement, mais pour ceux peu au fait de l'utilisation de git, une archive d'installation est prévue.
+
+Il est possible d'utiliser le programme directement depuis le dépot cloné, mais il est préférable de l'installer sur la machine, via:
 ```
 $ sudo ./install
 ```
-Ceci va copier le script dans `/usr/local/bin/` et le fichier de configuration (fichier d'en-tête LaTeX) dans `/etc/trombino/`.
+Ceci va copier les exécutables dans `/usr/local/bin/` et le fichier de configuration (fichier d'en-tête LaTeX) dans `/etc/trombino/`.
 
-## Utilisation
+## 3 - Utilisation
 
 Il faut avoir une liste des personnes, et prendre une photo par personne, **dans l'ordre de la liste**.
 En cas d'absence, il faut prendre une photo "vide", pour conserver l'ordre.
 
-Ensuite, un petit traitement batch des photos est probablement nécessaire (recadrage, augmentation de la luminosité, conversion en N&B, etc).
+Ensuite, un petit traitement batch des photos peut être réalisé (recadrage, augmentation de la luminosité, conversion en N&B, etc).
 Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.org/).
+Pour le recadrage, un outil permettant de le faire facilement est proposé, voir la section "3 - Extension" ci-dessous.
+
 Dans l'idéal, il faudrait avoir des photos de quelques dizaines de ko.
 
-Le script va générer deux fichiers pdf:
+Le script va générer en sortie deux fichiers pdf, dans le dossier courant:
 
 * `trombi_global.pdf`: trombinoscope global, sur plusieurs pages;
 * `trombi_groupes.pdf`: trombinoscope avec une page par groupe, avec les étudiants faisant partie de ce groupe.
 
-### Données d'entrées du script
+### 3.1 - Données d'entrées du script
 
 * une liste en CSV contenant sur 3 champs:
 Groupe, Nom, Prénom <br>
 A coller dans le dossier racine. Les lignes vides seront ignorées.
-* copier dans le dossier `photos` les photos, dans l'ordre de la liste.
+* copier dans un sous-dossier `photos` les photos, dans l'ordre de la liste.
 
 Attention, il doit y avoir autant de photos que de lignes dans le fichier d'entrée!
 
@@ -62,13 +76,13 @@ $ trombino -h
 (voir ci-dessous).
 
 
-### Paramétrage
+### 3.2 - Paramétrage
 * éditer le fichier `entete_ecole.txt` et y mettre le nom de l'établissement, de la promo, etc.
 Sera imprimé dans l'en-tête de gauche.
 * éditer le fichier `entete_annee.txt` et y mettre l'année en cours (ou ce que vous voulez d'autre!).
 Sera imprimé dans l'en-tête de droite.
 
-### Syntaxe d'appel
+### 3.3 - Syntaxe d'appel
 
 Des valeurs par défaut sont prévues, mais on peut passer des options pour les modifier.
 
@@ -85,7 +99,7 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 (utile en cas d'erreur nom/photo)
 
  
-## Exemple/demo
+## 4 - Exemple/demo
 
 Des données de démo dont incluses, vous pouvez tester directement.
 Il y a:
@@ -105,22 +119,23 @@ Vous pouvez aussi essayer ceci pour voir les mêmes données en 5 colonnes:
 $ ./trombino -c 5
 ```
 
-## Extension optionnelle: auto-cropping
+## 5 - Extension optionnelle: cropping de recadrage
 
-L'un des points faible de ce programme est le fait qu'il nécessite en pratique un "cropping" des photos.
+L'un des problèmes que l'on rencontre avec cette approche est le fait qu'il nécessite en pratique un "cropping" des photos.
 En effet, en général le cadrage fait qu'il est peu pratique d'avoir dès la prise de vue un cadrage type "photo d'identité".
 Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux (et donc, non).
-On peut aussi l'automatiser via un script (utilisant par exemple [imagemagick](https://imagemagick.org/)) qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédeterminer la bonne "bounding box", ce qui prend du temps.
-Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le cropping identique pour toutes les photos va générer soit des "coupages de têtes", soit des images un peu trop "larges".
+On peut aussi l'automatiser via un script (utilisant par exemple [imagemagick](https://imagemagick.org/)) qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédéterminer la bonne "bounding box", ce qui prend du temps.
+Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, à droite, et donc le cropping identique pour toutes les photos va générer soit des "coupages de têtes", soit des images avec un cadrage un peu trop "larges".
 
-Depuis 2024/09, une extension utilisant la bibliothèque OpenCv est incluse et permet d'avoir un **cropping automatique**, par une détection de visage dans la photo.
-Il faut donc avoir Opencv installé localement, mais il semble que ceci soit assez facile, via:
+Depuis 2024/09, une extension utilisant Python3 et la bibliothèque OpenCv est incluse dans ce projet et permet d'avoir un **cropping automatique**, par une détection de visage dans la photo.
+Il faut donc avoir ces deux outils installé localement (Python3 est en général déjà présent).
+Pour Opencv, l'installation est assez facile, via:
 ```
 $ pip install opencv-python
 ```
 Ceci a été testé avec la version 4.5.5, mais devrait aussi fonctionner avec des versions 3.
 
-L'utilisation de fait via l'appel du programme `autocrop`, qui prend deux arguments.
+L'utilisation se fait via l'appel du programme `autocrop`, qui prend deux arguments.
 Le premier est le nom du dossier dans lequel se trouve les photos brutes.
 Le second est le nom du dossier dans lequel seront placés les images "croppées"
 (sera crée s'il n'existe pas).
