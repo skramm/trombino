@@ -138,7 +138,7 @@ def saveCroppedImage( face ):
 
 	print( "cropped:", x0, y0, w0, h0, "name=", dir_out+"/"+fname )
 	if (x0<0 or y0<0):
-		print( "ERREUR: negatives coordinates, restart with -m switch" )
+		print( appname, "Failure, negatives coordinates, restart with -m switch" )
 		exit(6)
 	
 	img_out = gray_image[y0:y0+h0,x0:x0+w0]
@@ -215,7 +215,7 @@ def startGUI():
 
 print( "Installed Opencv version:", cv2.__version__ )
 if( len(sys.argv) < 3 ):
-	print( "Error, requires 2 arguments" )
+	print( appname, "Error, requires 2 arguments" )
 	exit(1)
 
 fullfname = sys.argv[1]
@@ -231,7 +231,7 @@ if sys.argv[1] == "-m":
 	fullfname = sys.argv[2]
 	manualmode = True
 	if( len(sys.argv) < 4 ):
-		print( "Error, require output folder")
+		print( appname, "Error, require output folder")
 		exit(1)
 	dir_out = sys.argv[3]
 	
@@ -239,7 +239,7 @@ fname = os.path.basename(fullfname)
 
 img_src = cv2.imread(fullfname)
 if img_src is None:
-	print( "failed to read image '"+fullfname+"', quitting..." )
+	print( appname, "failed to read image '"+fullfname+"', quitting..." )
 	exit(2)
 
 
@@ -260,7 +260,7 @@ if manualmode:
 	startGUI()
 else:
 	if len(face) != 1:
-		print( "Failed to find unique face, start interactive GUI" )
+		print( appname, "Failed to find unique face, start interactive GUI" )
 		startGUI()
 	else:
 		saveCroppedImage( face )

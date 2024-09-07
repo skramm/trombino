@@ -45,7 +45,8 @@ mkdir -p "$ddir"
 for fn in $sdir/*
 do
 	echo "-$appname: processing file $fn"
-	trombino_autocrop_gui.py $modemanual "$fn" "$ddir" 
+	./autocrop2.py $modemanual "$fn" "$ddir" 
+#	trombino_autocrop_gui.py $modemanual "$fn" "$ddir" 
 	errval=$?
 	if ! [ $errval = 0 ]
 	then
