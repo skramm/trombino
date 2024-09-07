@@ -5,9 +5,10 @@ set +x
 # 1: input folder where the photos are (must exist!)
 # 2: name of output folder (will be created)
 
+appname="autocrop"
 
 if [ "$#" -lt 2 ]; then
-	echo "-autocrop: 2 arguments requested"
+	echo "-$appname: 2 arguments requested"
 	exit 1
 fi
 
@@ -21,23 +22,34 @@ then
 	modemanual=$1
 	src_dir=$2
 	if [ "$#" -lt 3 ]; then
-		echo "-autocrop: missing destination folder, exiting..."
+		echo "-$appname: missing destination folder, exiting..."
 		exit 1
 	fi
 	dst_dir=$3
 fi
 
+# remove potential trailing slashes
+ddir=${dst_dir%/}
+sdir=${src_dir%/}
 
-mkdir -p "$dst_dir"
 
-for fn in $src_dir/*
+if [ "$ddir" = "$sdir" ]
+then
+	echo "-$appname: error, source and destination folder cannot be the same"
+	exit 2
+fi
+
+
+mkdir -p "$ddir"
+
+for fn in $sdir/*
 do
-	echo "-autocrop: processing file $fn"
-	trombino_autocrop_gui.py $modemanual "$fn" "$dst_dir" 
+	echo "-$appname: processing file $fn"
+	trombino_autocrop_gui.py $modemanual "$fn" "$ddir" 
 	errval=$?
 	if ! [ $errval = 0 ]
 	then
-		echo "-autocrop: failure, cropping app returned $errval, stopping"
+		echo "-$appname: failure, cropping app returned $errval, stopping"
 		exit 1
 	fi
 done
