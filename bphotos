@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set +x
 
 # !!!!!!!!!!!!!!!! WIP !!!!!!!!!!!!!!!!
 
@@ -24,7 +24,7 @@ function resize
 	mkdir -p $2
 	rm $2/*
 	for file in $1/*; do
-		echo "processing $file"
+		echo "traitement de $file"
 		convert $file -resize $3% $2/`basename $file`;
 	done
 }
@@ -35,7 +35,7 @@ function bright
 	mkdir -p $2
 	rm $2/*
 	for file in $1/*; do
-		echo "processing $file"	
+		echo "traitement de $file"	
 		convert $file -brightness-contrast $3x$4 $2/`basename $file`;
 	done
 }
@@ -46,7 +46,7 @@ function bw
 	rm $2/*
 
 	for file in $1/*; do
-		echo "processing $file"
+		echo "traitement de $file"
 		convert $file -set colorspace Gray -separate -average $2/`basename $file`;
 	done
 }
@@ -56,13 +56,25 @@ function bw
 # START
 
 if [ "$#" -lt 3 ]; then
-	echo "-$appname: 3 arguments mininum requested"
+	echo " -3 arguments mininum"
 	exit 1
 fi
 
-src=$1
-dst=$2
+srcd=$1
+dstd=$2
 cmd=$3
+
+
+# remove potential trailing slashes
+src=${srcd%/}
+dst=${dstd%/}
+
+
+if [ "$src" = "$dst" ]
+then
+	echo " -Erreur, dossier source et destination ne peuvent pas être les mêmes"
+	exit 2
+fi
 
 
 while [ -n "$3" ]; do # while loop starts
@@ -71,7 +83,7 @@ while [ -n "$3" ]; do # while loop starts
 		echo "R"
 		if [ "$#" -lt 4 ];
 		then
-			echo "-$appname: command 'R' requires resize value"
+			echo " -commande 'R': nécessite un taux de réduction"
 		else
 			resize $src $dst $4
 			exit 0
@@ -89,14 +101,14 @@ while [ -n "$3" ]; do # while loop starts
 		if [ "$#" -lt 5 ];
 		then
 			echo "nb=$#"
-			echo "-$appname: command 'B' requires resize brightness and contrast values"
+			echo " -commande 'B' requires resize brightness and contrast values"
 		else
 			bright $src $dst $4 $5
 			exit 0
 		fi
 		shift
 		;;
-	*) echo " -Erreur: option $3 inconnue"; exit 1 ;;
+	*) echo " -Erreur: commande $3 inconnue"; exit 1 ;;
 	esac
 	shift
 done

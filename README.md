@@ -19,10 +19,12 @@ Outil en ligne de commande, calibré pour des groupes jusqu'à 20 personnes par 
 
 ## 2 - Installation
 
+
 ## 2.1 - Outils nécessaires
 * bash (incluant le calculateur `bc`)
 * LaTeX, avec le package `tabularx`
-* Python3 & Opencv, pour l'extension de cropping (voir section "Extension")
+* Python3 & [Opencv](https://opencv.org/), pour l'extension de recadrage assisté (voir section "Extension")
+* [ImageMagick](https://imagemagick.org/), pour l'extension sur le traitement préalable des photos (voir section "prétraitement")
 
 Tout ceci a été developpé sous Linux/Ubuntu et devrai donc fonctionner sans problème sur des OS basés Linux,
 mais ces outils étant assez commun, un usage sous Mac/OSX devrait pouvoir fonctionner également (non-testé!).
@@ -33,7 +35,7 @@ Pour ceux travaillant (encore) sous Windows, je vous laisse essayer.
 
 Le plus simple consiste à cloner le dépot localement, mais pour ceux peu au fait de l'utilisation de git, une archive d'installation est prévue.
 
-Il est possible d'utiliser le programme directement depuis le dépot cloné, mais il est préférable de l'installer sur la machine, via:
+A partir du dépot, et sur une machine Debian ou dérivé, on l'installe sur la machine locale avec:
 ```
 $ sudo ./install
 ```
@@ -45,7 +47,8 @@ Il faut avoir une liste des personnes, et prendre une photo par personne, **dans
 En cas d'absence, il faut prendre une photo "vide", pour conserver l'ordre.
 
 Ensuite, un petit traitement batch des photos peut être réalisé (recadrage, augmentation de la luminosité, conversion en N&B, etc).
-Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.org/).
+Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.org/), mais ce package propose un script permettant de faire ça rapidement.
+
 Pour le recadrage, un outil permettant de le faire facilement est proposé, voir la section "3 - Extension" ci-dessous.
 
 Dans l'idéal, il faudrait avoir des photos de quelques dizaines de ko.
@@ -166,5 +169,42 @@ Des sliders permettent d'ajuster les paramètres, le plus important étant l'éc
 Une fois un visage trouvé, il faut alors appuyer sur "espace" pour sauvegarder l'image recadrée.
 
 Dans le cas où il s'agit d'une photo "vide", un appui sur ESC va sauvegarder la photo telle quelle.
+
+
+## 6 - Script de prétraitement par lot des photos
+
+Ce package inclut un script permettant de réaliser de façon rapide différents traitements sur un ensemble de photos.
+Il s'appuie sur [ImageMagick](https://imagemagick.org/), très facilement installable avec
+```
+$ sudo apt install imagemagick
+```
+**Motivation**:
+
+Très souvent, les photos ont une résolution très élevée, nullement nécessaire pour un simple trombinoscope.
+De plus, le poids de ces photos va alourdir considérablement la taille des pdf générés.
+Il est donc pertinent de réduire la taille des photos de façon à avoir un pdf final de taille raisonnable.
+
+De même pour la couleur:
+les photos en N&B sont en général largement suffisantes pour reconnaitre les personnes, il est donc souvent inutile d'inclure des photos en couleur dans le trombi.
+Cela allègera le poids du pdf final.
+
+Enfin, les photos peuvent avoir une luminosité faible ou un constraste insuffisant, qui risque de rendre les photos peu lisibles en impression.
+
+Le programme `bphotos` permet de corriger ces défauts de façon rapide.
+On donne en argument:
+
+1. le nom du dossier contenant les photos
+2. le nom du dossier destination (qui sera crée s'il n'existe pas)
+3. Une commande parmi les 3 suivantes:
+  - `B` pour corriger luminosité et contraste
+  - `W` pour convertir en N&B
+  - `R` pour reduire la taille des photos. il faut donner un 4è argument qui sera le taux de réduction en %.  
+  Par exemple:
+  ```
+   $ bphotos src dst R 20
+  ```
+  va générer des images dans un dossier `dst` dont la taille sera -20% de celles présentes dans le dossier `src` 
+  
+  
 
 
