@@ -15,6 +15,7 @@ Based on: https://www.datacamp.com/tutorial/face-detection-python-opencv
 # -1: filename (with path, say "my/folder/photo_12345.jpg")
 # -2: output folder
 
+# optional argument: -m: runs GUI everytime
 
 import os
 import sys
@@ -168,7 +169,7 @@ def processDetection():
 #=====================================================================
 # start the GUI and wait for interaction
 def startGUI():
-	global img_src,iterIdx,viewScale,im_w,im_h,face
+	global img_src,iterIdx,viewScale,im_w,im_h,face,fname
 	print("START GUI()");
 	app = tkinter.Tk()
 	s_width  = app.winfo_screenwidth()-100
@@ -197,9 +198,15 @@ def startGUI():
 		drawStuff()
 		cv2.imshow(window,img2)
 		key=cv2.waitKey(0)
+		print("key detected=",key )
 		if key == 27:
-			cv2.imwrite(dir_out+"/"+fname,img_out)
+			print( "ESC, stopping")
 			exit(1)
+			break
+		if key == 98:  # 'b' for "blank"
+			print( "No cropping!")
+			cv2.imwrite(dir_out+"/"+fname,img_src)
+			exit(0)
 			break
 		if key == 32: # SPC
 			if len(face) != 1:
