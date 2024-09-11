@@ -228,17 +228,13 @@ if( len(sys.argv) < 3 ):
 fullfname = sys.argv[1]
 dir_out = sys.argv[2]
 
-print( appname, "argv=", len(sys.argv) )
-print( "sys.argv[1]="+ sys.argv[1] )
-
-
 manualmode = False
 if sys.argv[1] == "-m":
 	print( appname, "Manual mode for all")
 	fullfname = sys.argv[2]
 	manualmode = True
 	if( len(sys.argv) < 4 ):
-		print( appname, "Error, require output folder")
+		print( appname, "Error, requires output folder")
 		exit(1)
 	dir_out = sys.argv[3]
 	

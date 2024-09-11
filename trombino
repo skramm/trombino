@@ -301,7 +301,7 @@ while [ -n "$1" ]; do # while loop starts
 	-f)
 		IFS=$2
 		fsep=$2
-		echo "Utilisation de $IFS -- $fsep comme séparateur"
+		echo "Utilisation de '$IFS' -- '$fsep' comme séparateur"
 		shift
 		;;
 	-o)
