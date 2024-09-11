@@ -196,14 +196,22 @@ On donne en argument:
 1. le nom du dossier contenant les photos
 2. le nom du dossier destination (qui sera crée s'il n'existe pas)
 3. Une commande parmi les 3 suivantes:
-  - `B` pour corriger luminosité et contraste
+  - `B` pour corriger luminosité et contraste.
+  Il faut donner un 4è et un 5è argument dans la plage [-100;+100], la valeur 0 correspondant à aucune modification.
   - `W` pour convertir en N&B
-  - `R` pour reduire la taille des photos. il faut donner un 4è argument qui sera le taux de réduction en %.  
-  Par exemple:
-  ```
-   $ bphotos src dst R 20
-  ```
-  va générer des images dans un dossier `dst` dont la taille sera -20% de celles présentes dans le dossier `src` 
+  - `R` pour reduire la taille des photos. il faut donner un 4è argument qui sera le taux de réduction en %.
+  
+  
+Exemples:
+
+- `$ bphotos src dst R 20` va générer des images dans un dossier `dst` dont la taille sera -20% de celles présentes dans le dossier `src` 
+- `$ bphotos src dst W` va convertir les photos présentes dans le dossier `src` en N&B et les placer dans le dossier `dst`
+- `$ bphotos src dst B 20 10` va augmenter la luminosité de 20% et le contraste de 10%
+
+Si vous avez un nombre de photos considérables, et en particulier pour la modification de luminosité et contraste, il pourra être pertinent de faire d'abord des essais sur un nombre réduit de phots et de trouver de façon empirique les bon réglages.
+
+
+  
   
   
 
