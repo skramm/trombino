@@ -1,0 +1,116 @@
+#!/bin/bash
+set -x
+
+# !!!!!!!!!!!!!!!! WIP !!!!!!!!!!!!!!!!
+
+# bphoto - Batch process Photos
+# a wrapper over Imagemagick to process a set of photos with basic adjustements:
+# convert to B&W, reduce size, brightness and contrast
+
+# args:
+# -1: input folder
+# -2: output folder (will be created)
+# -3: command: one of these
+# R: reduce size, requires a 4th arg: reducing amount (%)
+
+# Examples:
+# $ bphoto src/ dst/ R 20  reduce image size by 20%
+# $ bphoto src/ dst/ W     convert to B&W
+# $ bphoto src/ dst/ B 50 10 
+
+#========================================
+function resize
+{
+	mkdir -p $2
+	rm $2/*
+	for file in $1/*; do
+		echo "processing $file"
+		convert $file -resize $3% $2/`basename $file`;
+	done
+}
+
+
+function bright
+{
+	mkdir -p $2
+	rm $2/*
+	for file in $1/*; do
+		echo "processing $file"	
+		convert $file -brightness-contrast $3x$4 $2/`basename $file`;
+	done
+}
+
+function bw
+{
+	mkdir -p $2
+	rm $2/*
+
+	for file in $1/*; do
+		echo "processing $file"
+		convert $file -set colorspace Gray -separate -average $2/`basename $file`;
+	done
+}
+
+
+#========================================
+# START
+
+if [ "$#" -lt 3 ]; then
+	echo "-$appname: 3 arguments mininum requested"
+	exit 1
+fi
+
+src=$1
+dst=$2
+cmd=$3
+
+
+while [ -n "$3" ]; do # while loop starts
+	case "$3" in
+	R)
+		echo "R"
+		if [ "$#" -lt 4 ];
+		then
+			echo "-$appname: command 'R' requires resize value"
+		else
+			resize $src $dst $4
+			exit 0
+		fi
+		shift
+		;;
+	W)
+		echo "W"
+		bw $src $dst
+		exit 0
+		shift
+		;;
+	B)
+		echo "B"
+		if [ "$#" -lt 5 ];
+		then
+			echo "nb=$#"
+			echo "-$appname: command 'B' requires resize brightness and contrast values"
+		else
+			bright $src $dst $4 $5
+			exit 0
+		fi
+		shift
+		;;
+	*) echo " -Erreur: option $3 inconnue"; exit 1 ;;
+	esac
+	shift
+done
+
+
+
+
+#crop src out1
+#resize out1 out2
+
+#bright raw out1
+#bw out1 out2
+#resize "$1" "$2"
+
+
+exit
+
