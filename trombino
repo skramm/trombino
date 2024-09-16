@@ -319,7 +319,7 @@ while [ -n "$1" ]; do # while loop starts
 		echo " -c: pour spécifier le nombre de colonnes"
 		echo " -s: permutte nom - prénom"
 		echo " -f SEP: separateur de champ"
-		echo " -d: active le mode \"debug\" qui va imprimer le nom de fichier de la photo avec le nom
+		echo " -d: active le mode \"debug\" qui va imprimer le nom de fichier de la photo avec le nom"
 		exit 0
 		;;
 
