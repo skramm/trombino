@@ -54,6 +54,10 @@ function close_page
 		while [ $count_cols != $nb_cols ]
 		do
 			echo "&" >>$outfile
+			if [ $html == 1 ]
+			then
+				echo "<td></td>" >>$outfile_html
+			fi
 			(( count_cols+=1 ))
 		done
 		echo "\\\ \hline" >>$outfile
@@ -109,8 +113,20 @@ function new_page
 function process_line_all
 {
 	line_is_closed=false
-	if [ "$count_lines" -eq "0" ] && [ "$count_cols" -eq "0" ]; then
-		new_page 0
+#	if [ "$count_lines" -eq "0" ] && [ "$count_cols" -eq "0" ]; then
+#		new_page 0
+#	fi
+
+	if [ "$count_cols" -eq "0" ]
+	then
+		if [ "$count_lines" -eq "0" ]
+		then
+			new_page 0	
+		fi
+		if [ $html == 1 ]
+		then
+			echo "<tr>" >> $outfile_html
+		fi
 	fi
 
 	photo="${1%.*}"
@@ -183,6 +199,10 @@ function process_line
 	photo="${1%.*}"
 	photoh=$1
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
+	if [ $html == 1 ]
+	then
+		echo "<td><img src='$photos$photoh'><br>" >>$outfile_html
+	fi
 	firstname=$4
 	lastname=$3
 
@@ -207,14 +227,32 @@ function process_line
 	firstname2=${firstname1^}
 	echo "$firstname2" >>$outfile
 
+	if [ $html == 1 ]
+	then
+		echo "$lastname" | tr [:lower:] [:upper:] >>$outfile_html
+		echo "$firstname2" >>$outfile_html
+	fi
+
 	if [ "$5" != "" ]; then
 		echo " - $5" >>$outfile
+		if [ $html == 1 ]
+		then
+			echo " - $5" >>$outfile_html
+		fi
 	fi
 
 # print photo filename in debug mode
 	if [ $debug_mode = true ];
 	then
 		echo "-$photo" >>$outfile
+		if [ $html == 1 ]
+		then
+			echo "-$photoh" >>$outfile_html
+		fi
+	fi
+	if [ $html == 1 ]
+	then
+		echo "</td>" >>$outfile_html
 	fi
 
 	(( count_cols += 1 ))
@@ -224,6 +262,11 @@ function process_line
 		line_is_closed=true
 		(( count_lines += 1 ))
 		count_cols=0
+		if [ $html == 1 ]
+		then
+			echo "</tr>" >>$outfile_html
+		fi
+		
 	else
 		echo "&" >>$outfile
 	fi
