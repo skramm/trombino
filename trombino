@@ -63,7 +63,13 @@ function close_page
 	echo "\clearpage" >>$outfile
 	line_is_closed=true
 	table_is_closed=true;
+
+	if [ $html == 1 ]
+	then
+		echo "</table>" >> $outfile_html
+	fi
 }
+
 function reset_all
 {
 	count_lines=0
@@ -90,6 +96,13 @@ function new_page
 	done
 	echo "}\hline" >>$outfile
 	table_is_closed=false;
+
+	if [ $html == 1 ]
+	then
+		echo "<h3>Groupe $2</h3>" >>$outfile_html
+		echo "<table>" >>$outfile_html
+	fi
+
 }
 
 #-------------------- Main function for global output file, process one line -------------------------
@@ -101,12 +114,22 @@ function process_line_all
 	fi
 
 	photo="${1%.*}"
+	photoh=$1
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
+	if [ $html == 1 ]
+	then
+		echo "<td><img src='$photos$photoh'><br>" >>$outfile_html
+	fi
 	firstname=$4
 	lastname=$3
 	current_group=$2
 #	echo "fn=$firstname ln=$lastname gr=$current_group"
 	echo "$firstname $lastname \newline gr $current_group">>$outfile
+
+	if [ $html == 1 ]
+	then
+		echo "$firstname $lastname <br> $current_group</td>">>$outfile_html
+	fi
 
 # print photo filename in debug mode
 	if [ $debug_mode = true ];
@@ -121,6 +144,10 @@ function process_line_all
 		line_is_closed=true
 		(( count_lines += 1 ))
 		count_cols=0
+		if [ $html == 1 ]
+		then
+			echo "</tr>" >>$outfile_html
+		fi
 		if [ $count_lines -eq $max_lines ]; then
 			echo "\end{tabularx}" >>$outfile
 			echo "" >>$outfile
@@ -154,6 +181,7 @@ function process_line
 	line_is_closed=false
 
 	photo="${1%.*}"
+	photoh=$1
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
 	firstname=$4
 	lastname=$3
@@ -227,6 +255,11 @@ echo "\end{document}" >>$outfile
 function process_header
 {
 cat $header_file >$outfile
+
+if [ $html == 1 ]
+then
+	echo "<html>" >$outfile_html
+fi
 
 if [ -f entete_ecole.txt ]; then
 	cat entete_ecole.txt >>$outfile
@@ -312,6 +345,10 @@ while [ -n "$1" ]; do # while loop starts
 		swapfnln=true
 		shift
 		;;
+	-w)
+		html=1
+		shift
+		;;
 	-h)
 		echo " -l nom_fichier: pour spécifier un autre nom du fichier contenant la liste"
 		echo " -p dossier: pour indiquer un autre dossier pour les photos"
@@ -348,6 +385,8 @@ fi
 echo " -Nom du fichier de sortie: ${out_fn}"
 outfile1=BUILD/${out_fn}_groupes.tex
 outfile2=BUILD/${out_fn}_global.tex
+outfile1_html=BUILD/${out_fn}_groupes.html
+outfile2_html=BUILD/${out_fn}_global.html
 
 echo " -Nbe colonnes par page=$nb_cols"
 
@@ -399,6 +438,7 @@ fi
 
 
 outfile=$outfile2
+outfile_html=$outfile2_html
 process_header
 while read line; do
 #     echo "line : $line"
@@ -411,6 +451,7 @@ latex_build
 
 
 outfile=$outfile1
+outfile_html=$outfile1_html
 process_header
 while read line; do
 #     echo "line : $line"
