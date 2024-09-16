@@ -377,7 +377,8 @@ echo "* Etape 1: génération fichiers intermédiaires"
 paste --delimiters="$IFS" BUILD/list_photos.txt BUILD/input.csv > BUILD/global_list_1.csv
 
 # tri
-sort -t, -k2,3 BUILD/global_list_1.csv >BUILD/global_list_2.csv
+#echo "IFS=$IFS"
+sort -t "$IFS" -k2,3 BUILD/global_list_1.csv >BUILD/global_list_2.csv
 
 if [ ! -f BUILD/global_list_2.csv ]; then
 	echo " -Erreur: fichier intermédiaire BUILD/global_list_2.csv absent..."
