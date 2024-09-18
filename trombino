@@ -36,7 +36,7 @@ swapfnln=false
 
 current_group=nogroup
 header_file=trombi_header.tex
-
+html=0
 
 
 #-----------------------------------------------------------------------------
