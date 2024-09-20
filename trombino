@@ -5,8 +5,9 @@
 # création automatique de trombinoscope
 
 set +x
+# 2024-09-20: ajout version HTML (switch -w)
 
-version=1.2.1
+version=1.2.2
 
 # dossier par défaut contenant les photos
 photos=photos/
@@ -30,13 +31,14 @@ count_pages=0
 
 # default field separator
 IFS=,
+fsep=,
 
 # swap Firstname-Lastname
 swapfnln=false
 
 current_group=nogroup
 header_file=trombi_header.tex
-
+html=0
 
 
 #-----------------------------------------------------------------------------
@@ -54,22 +56,38 @@ function close_page
 		while [ $count_cols != $nb_cols ]
 		do
 			echo "&" >>$outfile
+			if [ $html == 1 ]
+			then
+				echo "<td></td>" >>$outfile_html
+			fi
 			(( count_cols+=1 ))
 		done
 		echo "\\\ \hline" >>$outfile
+
+		if [ $html == 1 ]
+		then
+			echo "</tr></table>" >> $outfile_html
+		fi
 	fi
 	echo "\end{tabularx}" >>$outfile
 	echo "" >>$outfile
 	echo "\clearpage" >>$outfile
 	line_is_closed=true
 	table_is_closed=true;
+
+	if [ $html == 1 ]
+	then
+		echo "</table>" >> $outfile_html
+	fi
 }
+
 function reset_all
 {
 	count_lines=0
 	count_cols=0
 }
 
+#-----------------------------------------------------
 # opens new page
 # - arg1: 0: no group title, 1: print group as title
 # - arg2: group
@@ -79,8 +97,12 @@ function new_page
 	then
 		echo "\begin{center}" >>$outfile
 		echo "\bf \huge" >>$outfile
-		echo "Groupe $2" >>$outfile
+		echo "Groupe $2: ${groupsize[$2]}" >>$outfile
 		echo "\end{center}" >>$outfile
+		if [ $html == 1 ]
+		then
+			echo -e "<h3>Groupe $2: ${groupsize[$2]}</h3>\n<table>" >>$outfile_html
+		fi
 	fi
 	echo "" >>$outfile
 	echo -n "\begin{tabularx}{\linewidth}{|" >>$outfile
@@ -92,22 +114,42 @@ function new_page
 	table_is_closed=false;
 }
 
+
 #-------------------- Main function for global output file, process one line -------------------------
 function process_line_all
 {
 	line_is_closed=false
-	if [ "$count_lines" -eq "0" ] && [ "$count_cols" -eq "0" ]; then
-		new_page 0
+
+	if [ "$count_cols" -eq "0" ]
+	then
+		if [ "$count_lines" -eq "0" ]
+		then
+			new_page 0	
+		fi
+		if [ $html == 1 ]
+		then
+			echo "<tr>" >> $outfile_html
+		fi
 	fi
 
 	photo="${1%.*}"
+	photoh=$1
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
+	if [ $html == 1 ]
+	then
+		echo "<td><img src='$photos$photoh'>" >>$outfile_html
+	fi
 	firstname=$4
 	lastname=$3
 	current_group=$2
 
 	echo "fn=$firstname ln=$lastname gr=$current_group"
 	echo "$firstname $lastname \newline gr $current_group">>$outfile
+
+	if [ $html == 1 ]
+	then
+		echo "<p>$firstname $lastname <br> $current_group</p></td>">>$outfile_html
+	fi
 
 # print photo filename in debug mode
 	if [ $debug_mode = true ];
@@ -122,6 +164,10 @@ function process_line_all
 		line_is_closed=true
 		(( count_lines += 1 ))
 		count_cols=0
+		if [ $html == 1 ]
+		then
+			echo "</tr>" >>$outfile_html
+		fi
 		if [ $count_lines -eq $max_lines ]; then
 			echo "\end{tabularx}" >>$outfile
 			echo "" >>$outfile
@@ -134,6 +180,38 @@ function process_line_all
 
 }
 
+# -----------------------------
+function countgr
+{
+	if [ "$current_group" == "$2" ]
+	then
+		(( current_size+=1 ))	
+	else
+		if [ "$current_group" == "nogroup" ]
+		then
+			current_group=$2
+		else
+			groupsize[$current_group]=$current_size
+			current_group=$2
+			current_size=1
+		fi
+	fi
+}
+# -----------------------------
+# Count group size
+# arg: file name
+function countgrsize
+{
+	current_size=1
+	current_group=nogroup
+
+	while read line ; do
+		countgr $line
+	done < $1
+
+	groupsize[$current_group]=$current_size
+}
+
 #-------------------- Main function for groups, process one line -------------------------
 function process_line
 {
@@ -141,21 +219,37 @@ function process_line
 #	echo -e "\n* processing name=$4 $3 current_group=$current_group bac=$5 photo=$1"
 
 # SI nouveau groupe, alors il faut fermer la page et faire une nouvelle
-	if [ "$current_group" != "$2" ]; then
-		if [ "$current_group" != "nogroup" ]; then
+	if [ "$current_group" != "$2" ]
+	then
+		if [ "$current_group" != "nogroup" ]
+		then
 			close_page
 		fi
 		current_group=$2
 		reset_all
 	fi
 
-	if [ "$count_lines" -eq "0" ] &&  [ "$count_cols" -eq "0" ]; then
-		new_page 1 $2
+	if [ "$count_cols" -eq "0" ]
+	then
+		if [ "$count_lines" -eq "0" ]
+		then
+			new_page 1 $2
+			if [ $html == 1 ]
+			then
+				echo "<tr>" >>$outfile_html
+			fi
+		fi
 	fi
+	
 	line_is_closed=false
 
 	photo="${1%.*}"
+	photoh=$1
 	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
+	if [ $html == 1 ]
+	then
+		echo "<td><img src='$photos$photoh'><br>" >>$outfile_html
+	fi
 	firstname=$4
 	lastname=$3
 
@@ -164,11 +258,8 @@ function process_line
 
 	if [ $swapfnln = true ]; then
 		tmpvar="$firstname"
-#		echo "tmpvar=$tmpvar"
 		firstname="$lastname"
-#		echo "firstname=$firstname"
 		lastname="$tmpvar"
-#		echo "lastname=$lastname"
 	fi
 
 #	echo "APRES: firstname=$firstname  lastname=$lastname"
@@ -180,25 +271,53 @@ function process_line
 	firstname2=${firstname1^}
 	echo "$firstname2" >>$outfile
 
+	if [ $html == 1 ]
+	then
+		echo "<p>$lastname" | tr [:lower:] [:upper:] >>$outfile_html
+		echo "$firstname2" >>$outfile_html
+	fi
+
 	if [ "$5" != "" ]; then
 		echo " - $5" >>$outfile
+		if [ $html == 1 ]
+		then
+			echo " - $5" >>$outfile_html
+		fi
+	fi
+	if [ $html == 1 ]
+	then
+		echo "</p>" >>$outfile_html
 	fi
 
 # print photo filename in debug mode
 	if [ $debug_mode = true ];
 	then
 		echo "-$photo" >>$outfile
+		if [ $html == 1 ]
+		then
+			echo "-$photoh" >>$outfile_html
+		fi
 	fi
 
 	(( count_cols += 1 ))
 
-	if [ "$count_cols" -eq "$nb_cols" ]; then
+# if reached max number of columns
+	if [ "$count_cols" -eq "$nb_cols" ];
+	then
 		echo "\\\ \hline" >>$outfile
 		line_is_closed=true
 		(( count_lines += 1 ))
 		count_cols=0
+		if [ $html == 1 ]
+		then
+			echo "</td></tr>" >>$outfile_html
+		fi
 	else
 		echo "&" >>$outfile
+		if [ $html == 1 ]
+		then
+			echo "</td>" >>$outfile_html
+		fi
 	fi
 
 #	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
@@ -228,6 +347,27 @@ echo "\end{document}" >>$outfile
 function process_header
 {
 cat $header_file >$outfile
+
+if [ $html == 1 ]
+then
+	echo "<html>" >$outfile_html
+	echo -en "<head><link rel='stylesheet' href='trombi.css'>\n<title>Trombinoscope" >>$outfile_html
+	if [ $1 == 0 ]
+	then
+		echo " global" >>$outfile_html	
+	else
+		echo " par groupe" >>$outfile_html	
+	fi
+	echo -e "</title></head><body><h1>Trombinoscope" >>$outfile_html
+	if [ $1 == 0 ]
+	then
+		echo " global" >>$outfile_html	
+	else
+		echo " par groupe" >>$outfile_html	
+	fi
+
+	echo -e "</h1>\n<table>" >>$outfile_html
+fi
 
 if [ -f entete_ecole.txt ]; then
 	cat entete_ecole.txt >>$outfile
@@ -293,7 +433,6 @@ while [ -n "$1" ]; do # while loop starts
 		;;
 	-d)
 		debug_mode=true
-		shift
 		;;
 	-c)
 		nb_cols="$2"
@@ -311,7 +450,9 @@ while [ -n "$1" ]; do # while loop starts
 		;;
 	-s)
 		swapfnln=true
-		shift
+		;;
+	-w)
+		html=1
 		;;
 	-h)
 		echo " -l nom_fichier: pour spécifier un autre nom du fichier contenant la liste"
@@ -320,6 +461,7 @@ while [ -n "$1" ]; do # while loop starts
 		echo " -c: pour spécifier le nombre de colonnes"
 		echo " -s: permutte nom - prénom"
 		echo " -f SEP: separateur de champ"
+		echo " -w: génération en HTML"
 		echo " -d: active le mode \"debug\" qui va imprimer le nom de fichier de la photo avec le nom"
 		exit 0
 		;;
@@ -331,7 +473,8 @@ done
 
 # création dossier temporaire
 mkdir -p BUILD
-
+#echo "input_file=$input_file"
+#set -x
 if [ -f $input_file ]; then
 	echo " -Lecture liste dans fichier '$input_file'"
 else
@@ -349,6 +492,8 @@ fi
 echo " -Nom du fichier de sortie: ${out_fn}"
 outfile1=BUILD/${out_fn}_groupes.tex
 outfile2=BUILD/${out_fn}_global.tex
+outfile1_html=BUILD/${out_fn}_groupes.html
+outfile2_html=BUILD/${out_fn}_global.html
 
 echo " -Nbe colonnes par page=$nb_cols"
 
@@ -399,9 +544,10 @@ else
 	echo " -!!! Utilisation du fichier d'en tête local !!!"
 fi
 
-
+# Génération trombi global
 outfile=$outfile2
-process_header
+outfile_html=$outfile2_html
+process_header 0
 while read line; do
 #     echo "line : $line"
 	process_line_all $line
@@ -412,8 +558,14 @@ outfile=${out_fn}_global
 latex_build
 
 
+# Génération trombi par groupe
+
+declare -A groupsize
+countgrsize BUILD/global_list_2.csv
+
 outfile=$outfile1
-process_header
+outfile_html=$outfile1_html
+process_header 1
 while read line; do
 #     echo "line : $line"
 	process_line $line
@@ -422,6 +574,13 @@ close_source
 
 outfile=${out_fn}_groupes
 latex_build
+
+
+if [ $html == 1 ]
+then
+	echo "</body></html>" >>$outfile_html
+	cp BUILD/*.html .
+fi
 
 exit 0
 

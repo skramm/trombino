@@ -1,0 +1,15 @@
+/*
+Minimalistic CSS file for the HTML output
+*/
+
+table, td
+{
+	border-collapse:collapse;
+/*	width: 100%;*/
+	border: black 1px solid ;	
+}
+p {
+	text-align: center;
+/*	margin-left: auto;
+	margin-right: auto;*/
+}
