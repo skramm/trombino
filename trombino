@@ -488,6 +488,12 @@ else
 	exit 3
 fi
 
+if [ $nb_cols -lt 2 ]
+then
+	echo "Erreur: minimum 2 colonnes"
+	exit 3
+fi
+
 echo " -Nom du fichier de sortie: ${out_fn}"
 outfile1=BUILD/${out_fn}_groupes.tex
 outfile2=BUILD/${out_fn}_global.tex
