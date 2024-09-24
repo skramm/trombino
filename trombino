@@ -4,10 +4,11 @@
 # https://github.com/skramm/trombino
 # création automatique de trombinoscope
 
-set +x
-# 2024-09-20: ajout version HTML (switch -w)
-
 version=1.2.2
+# 2024-09-20: ajout version HTML (switch -w) et ajout taille des groupes
+
+
+set +x
 
 # dossier par défaut contenant les photos
 photos=photos/
@@ -38,12 +39,15 @@ swapfnln=false
 
 current_group=nogroup
 header_file=trombi_header.tex
-html=0
 
+# output format
+html=0
+latex=1
 
 #-----------------------------------------------------------------------------
 # FONCTIONS
 #-----------------------------------------------------------------------------
+# Adds missing cells to the current table (latex AND html) and closes the table
 function close_page
 {
 	if $table_is_closed ; then
@@ -55,23 +59,22 @@ function close_page
 	then
 		while [ $count_cols != $nb_cols ]
 		do
-			echo "&" >>$outfile
+			echo "&" >>$outfile_tex
 			if [ $html == 1 ]
 			then
 				echo "<td></td>" >>$outfile_html
 			fi
 			(( count_cols+=1 ))
 		done
-		echo "\\\ \hline" >>$outfile
+		echo "\\\ \hline" >>$outfile_tex
 
 		if [ $html == 1 ]
 		then
 			echo "</tr></table>" >> $outfile_html
 		fi
 	fi
-	echo "\end{tabularx}" >>$outfile
-	echo "" >>$outfile
-	echo "\clearpage" >>$outfile
+	echo "\end{tabularx}" >>$outfile_tex
+	echo "\clearpage" >>$outfile_tex
 	line_is_closed=true
 	table_is_closed=true;
 
@@ -93,25 +96,32 @@ function reset_all
 # - arg2: group
 function new_page
 {
-	if [ $1 == 1 ];
+	if [ $html == 1 ]
 	then
-		echo "\begin{center}" >>$outfile
-		echo "\bf \huge" >>$outfile
-		echo "Groupe $2: ${groupsize[$2]}" >>$outfile
-		echo "\end{center}" >>$outfile
-		if [ $html == 1 ]
+		if [ $1 == 1 ];
 		then
 			echo -e "<h3>Groupe $2: ${groupsize[$2]}</h3>\n<table>" >>$outfile_html
 		fi
 	fi
-	echo "" >>$outfile
-	echo -n "\begin{tabularx}{\linewidth}{|" >>$outfile
-	for (( i=0;i<$nb_cols;i++ ))
-	do
-		printf "X|" >>$outfile
-	done
-	echo "}\hline" >>$outfile
-	table_is_closed=false;
+
+	if [ $latex == 1 ]
+	then
+		if [ $1 == 1 ]
+		then
+			echo "\begin{center}" >>$outfile_tex
+			echo "\bf \huge" >>$outfile_tex
+			echo "Groupe $2: ${groupsize[$2]}" >>$outfile_tex
+			echo "\end{center}" >>$outfile_tex
+		fi
+		echo "" >>$outfile_tex
+		echo -n "\begin{tabularx}{\linewidth}{|" >>$outfile_tex
+		for (( i=0;i<$nb_cols;i++ ))
+		do
+			printf "X|" >>$outfile_tex
+		done
+		echo "}\hline" >>$outfile_tex
+		table_is_closed=false;
+	fi
 }
 
 
@@ -124,7 +134,7 @@ function process_line_all
 	then
 		if [ "$count_lines" -eq "0" ]
 		then
-			new_page 0	
+			new_page 0
 		fi
 		if [ $html == 1 ]
 		then
@@ -134,49 +144,62 @@ function process_line_all
 
 	photo="${1%.*}"
 	photoh=$1
-	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
-	if [ $html == 1 ]
-	then
-		echo "<td><img src='$photos$photoh'>" >>$outfile_html
-	fi
 	firstname=$4
 	lastname=$3
 	current_group=$2
-#	echo "fn=$firstname ln=$lastname gr=$current_group"
-	echo "$firstname $lastname \newline gr $current_group">>$outfile
 
+	if [ $latex == 1 ]
+	then
+		echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile_tex
+		echo "$firstname $lastname \newline gr $current_group">>$outfile_tex
+		if [ $debug_mode = true ]
+		then
+			echo "- $photoh" >>$outfile_tex
+		fi
+	fi
 	if [ $html == 1 ]
 	then
-		echo "<p>$firstname $lastname <br> $current_group</p></td>">>$outfile_html
-	fi
-
-# print photo filename in debug mode
-	if [ $debug_mode = true ];
-	then
-		echo "-$photo" >>$outfile
+		echo "<td><img src='$photos$photoh'>" >>$outfile_html
+		echo "<p>$firstname $lastname <br> $current_group">>$outfile_html
+		if [ $debug_mode = true ]
+		then
+			echo "- $photoh" >>$outfile_html
+		fi
+		echo "</p></td>">>$outfile_html
 	fi
 
 	(( count_cols += 1 ))
 
-	if [ "$count_cols" -eq "$nb_cols" ]; then
-		echo "\\\ \hline" >>$outfile
-		line_is_closed=true
-		(( count_lines += 1 ))
-		count_cols=0
+	if [ "$count_cols" -eq "$nb_cols" ]
+	then
+		if [ $latex == 1 ]
+		then
+			echo "\\\ \hline" >>$outfile_tex
+		fi
 		if [ $html == 1 ]
 		then
 			echo "</tr>" >>$outfile_html
 		fi
-		if [ $count_lines -eq $max_lines ]; then
-			echo "\end{tabularx}" >>$outfile
-			echo "" >>$outfile
-			echo "\clearpage" >>$outfile
-			count_lines=0
+
+		line_is_closed=true
+		(( count_lines += 1 ))
+		count_cols=0
+		
+		if [ $latex == 1 ]
+		then
+			if [ $count_lines -eq $max_lines ]
+			then
+				echo "\end{tabularx}" >>$outfile_tex
+				echo "\clearpage" >>$outfile_tex
+				count_lines=0
+			fi
 		fi
 	else
-		echo "&" >>$outfile
+		if [ $latex == 1 ]
+		then
+			echo "&" >>$outfile_tex
+		fi
 	fi
-
 }
 
 # -----------------------------
@@ -203,11 +226,9 @@ function countgrsize
 {
 	current_size=1
 	current_group=nogroup
-
 	while read line ; do
 		countgr $line
 	done < $1
-
 	groupsize[$current_group]=$current_size
 }
 
@@ -244,7 +265,7 @@ function process_line
 
 	photo="${1%.*}"
 	photoh=$1
-	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile
+	echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile_tex
 	if [ $html == 1 ]
 	then
 		echo "<td><img src='$photos$photoh'><br>" >>$outfile_html
@@ -263,12 +284,12 @@ function process_line
 
 #	echo "APRES: firstname=$firstname  lastname=$lastname"
 # capitalize Lastname
-	echo "$lastname" | tr [:lower:] [:upper:] >>$outfile
+	echo "$lastname" | tr [:lower:] [:upper:] >>$outfile_tex
 
 # firstname is lower case, but first letter is uppercase
 	firstname1=${firstname,,}
 	firstname2=${firstname1^}
-	echo "$firstname2" >>$outfile
+	echo "$firstname2" >>$outfile_tex
 
 	if [ $html == 1 ]
 	then
@@ -291,7 +312,7 @@ function process_line
 # print photo filename in debug mode
 	if [ $debug_mode = true ];
 	then
-		echo "-$photo" >>$outfile
+		echo "-$photo" >>$outfile_tex
 		if [ $html == 1 ]
 		then
 			echo "-$photoh" >>$outfile_html
@@ -303,7 +324,7 @@ function process_line
 # if reached max number of columns
 	if [ "$count_cols" -eq "$nb_cols" ];
 	then
-		echo "\\\ \hline" >>$outfile
+		echo "\\\ \hline" >>$outfile_tex
 		line_is_closed=true
 		(( count_lines += 1 ))
 		count_cols=0
@@ -312,7 +333,7 @@ function process_line
 			echo "</td></tr>" >>$outfile_html
 		fi
 	else
-		echo "&" >>$outfile
+		echo "&" >>$outfile_tex
 		if [ $html == 1 ]
 		then
 			echo "</td>" >>$outfile_html
@@ -330,84 +351,95 @@ function close_source
 
 if [ "$count_cols" -ne "0" ]; then
 	close_page
-	echo
 fi
 
 if ! $table_is_closed ; then
 	close_page
 fi
 
-# close file
-echo "" >>$outfile
-echo "\end{document}" >>$outfile
+if [ $latex == 1 ]
+then
+	echo "\end{document}" >>$outfile_tex
+fi	
 }
 
 # ----------------------------------------------------------------------------
+# arg1: 0: trombi global; 1: trombi par groupe
 function process_header
 {
-cat $header_file >$outfile
-
 if [ $html == 1 ]
 then
 	echo "<html>" >$outfile_html
-	echo -en "<head><link rel='stylesheet' href='trombi.css'>\n<title>Trombinoscope" >>$outfile_html
+	echo -en "<head><link rel='stylesheet' href='trombi.css'>\n<title>Trombinoscope " >>$outfile_html
 	if [ $1 == 0 ]
 	then
-		echo " global" >>$outfile_html	
+		echo -n "global" >>$outfile_html
 	else
-		echo " par groupe" >>$outfile_html	
+		echo -n "par groupe" >>$outfile_html
 	fi
-	echo -e "</title></head><body><h1>Trombinoscope" >>$outfile_html
+	echo -en "</title>\n</head>\n<body>\n<h1>Trombinoscope" >>$outfile_html
 	if [ $1 == 0 ]
 	then
-		echo " global" >>$outfile_html	
+		echo -e " global</h1>\n<table>" >>$outfile_html
 	else
-		echo " par groupe" >>$outfile_html	
+		echo " par groupe</h1>" >>$outfile_html
 	fi
-
-	echo -e "</h1>\n<table>" >>$outfile_html
 fi
 
-if [ -f entete_ecole.txt ]; then
-	cat entete_ecole.txt >>$outfile
-else
-	echo " -Warning: fichier entete_ecole.txt absent"
-fi
+if [ $latex == 1 ]
+then
+	cat $header_file >$outfile_tex
 
-echo "}">>$outfile
+	echo "\lhead{" >>$outfile_tex
+	if [ -f head_left.txt ]; then
+		cat head_left.txt >>$outfile_tex
+	else
+		echo " -Warning: fichier head_left.txt absent"
+	fi
+	echo "}">>$outfile_tex
 
-echo "\rhead{">>$outfile
+	echo "\chead{" >>$outfile_tex
+	if [ -f head_center.txt ]; then
+		cat head_center.txt >>$outfile_tex
+	else
+		echo " -Warning: fichier head_center.txt absent"
+	fi
+	echo "}">>$outfile_tex
 
-if [ -f entete_annee.txt ]; then
-	cat entete_annee.txt >>$outfile
-else
-	echo " -Warning: fichier entete_annee.txt absent"
-fi
 
-echo "}">>$outfile
-echo "\begin{document}\noindent">>$outfile
-echo "\graphicspath{ {../$photos/} }">>$outfile
+	echo "\rhead{">>$outfile_tex
+	if [ -f head_right.txt ]; then
+		cat head_right.txt >>$outfile_tex
+	else
+		echo " -Warning: fichier head_right.txt absent"
+		echo "$(date +'%Y')" >>$outfile_tex
+	fi
+	echo "}">>$outfile_tex
+
+	echo "\begin{document}\noindent">>$outfile_tex
+	echo "\graphicspath{ {../$photos/} }">>$outfile_tex
+fi	
 }
 
 # ----------------------------------------------------------------------------
 function latex_build
 {
-cd BUILD
-echo "* Etape 2: start pdflatex, fichier $outfile"
-pdflatex -interaction=batchmode $outfile 1>pdflatex.stdout 2>pdflatex.stderr
-if [ $? != 0 ]; then
-	echo " -Erreur de compilation, voir fichier log"
-else
-	echo " -Compilation: ok"
-fi
+	cd BUILD
+	echo "* Etape 2: démarrage pdflatex, fichier $outfile_tex"
+	pdflatex -interaction=batchmode $outfile_tex 1>pdflatex.stdout 2>pdflatex.stderr
+	if [ $? != 0 ]; then
+		echo " -Erreur de compilation, voir fichier log"
+	else
+		echo " -Compilation: ok"
+	fi
 
-if [ -f $outfile.pdf ]; then
-	echo " -Fichier $outfile.pdf généré"
-	mv $outfile.pdf ..
-else
-	echo " -Erreur fatale, pas de pdf généré"
-fi
-cd ..
+	if [ -f $outfile_tex.pdf ]; then
+		echo " -Fichier $outfile_tex.pdf généré"
+		mv $outfile_tex.pdf ..
+	else
+		echo " -Erreur fatale, pas de pdf généré"
+	fi
+	cd ..
 }
 
 # ----------------------------------------------------------------------------
@@ -453,6 +485,9 @@ while [ -n "$1" ]; do # while loop starts
 	-w)
 		html=1
 		;;
+	-x)
+		latex=0
+		;;
 	-h)
 		echo " -l nom_fichier: pour spécifier un autre nom du fichier contenant la liste"
 		echo " -p dossier: pour indiquer un autre dossier pour les photos"
@@ -460,7 +495,7 @@ while [ -n "$1" ]; do # while loop starts
 		echo " -c: pour spécifier le nombre de colonnes"
 		echo " -s: permutte nom - prénom"
 		echo " -f SEP: separateur de champ"
-		echo " -w: génération en HTML"
+		echo " -w: génération HTML"
 		echo " -d: active le mode \"debug\" qui va imprimer le nom de fichier de la photo avec le nom"
 		exit 0
 		;;
@@ -469,6 +504,12 @@ while [ -n "$1" ]; do # while loop starts
 	esac
 	shift
 done
+
+if [ $html == 0 ] && [ $latex == 0 ]
+then
+	echo "Format de sortie: ni HTML ni pdf de sélectionné! (voir -h)"
+	exit 0
+fi
 
 # création dossier temporaire
 mkdir -p BUILD
@@ -526,7 +567,7 @@ echo "* Etape 1: génération fichiers intermédiaires"
 # merge photos + noms/groupes
 paste --delimiters="$IFS" BUILD/list_photos.txt BUILD/input.csv > BUILD/global_list_1.csv
 
-# tri
+# tri par groupe
 sort -t, -k2,3 BUILD/global_list_1.csv >BUILD/global_list_2.csv
 
 if [ ! -f BUILD/global_list_2.csv ]; then
@@ -549,7 +590,7 @@ else
 fi
 
 # Génération trombi global
-outfile=$outfile2
+outfile_tex=$outfile2
 outfile_html=$outfile2_html
 process_header 0
 while read line; do
@@ -558,8 +599,11 @@ while read line; do
 done < BUILD/global_list_1.csv
 close_source
 
-outfile=${out_fn}_global
-latex_build
+if [ $latex == 1 ]
+then
+	outfile_tex=${out_fn}_global
+	latex_build
+fi
 
 
 # Génération trombi par groupe
@@ -567,7 +611,7 @@ latex_build
 declare -A groupsize
 countgrsize BUILD/global_list_2.csv
 
-outfile=$outfile1
+outfile_tex=$outfile1
 outfile_html=$outfile1_html
 process_header 1
 while read line; do
@@ -576,9 +620,11 @@ while read line; do
 done < BUILD/global_list_2.csv
 close_source
 
-outfile=${out_fn}_groupes
-latex_build
-
+if [ $latex == 1 ]
+then
+	outfile_tex=${out_fn}_groupes
+	latex_build
+fi
 
 if [ $html == 1 ]
 then
