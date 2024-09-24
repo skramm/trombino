@@ -46,48 +46,72 @@ latex=1
 
 #-----------------------------------------------------------------------------
 # FONCTIONS
+
+#-----------------------------------------------------------------------------
+# A CLEANER!!!
+function close_line
+{
+	echo "F: close_line count_cols=$count_cols"
+
+	if [ $latex = 1 ]
+	then
+		(( count_cols+=1 ))
+		while [ $count_cols -lt $nb_cols ]
+		do
+			echo "&" >>$outfile_tex
+			(( count_cols+=1 ))
+		done
+		echo "\\\ \hline" >>$outfile_tex
+	fi
+
+	if [ $html = 1 ]
+	then
+		while [ $count_cols -lt $nb_cols ]
+		do
+			echo "<td></td>" >>$outfile_html
+			(( count_cols+=1 ))
+		done
+		echo "</tr>" >> $outfile_html
+	fi
+	
+	count_cols=0
+}
 #-----------------------------------------------------------------------------
 # Adds missing cells to the current table (latex AND html) and closes the table
 function close_page
 {
-	if $table_is_closed ; then
+	echo "F: close_page count_cols=$count_cols"
+	if $table_is_closed
+	then
 		return;
 	fi
 
-	(( count_cols+=1 ))
 	if ! $line_is_closed ;
 	then
-		while [ $count_cols != $nb_cols ]
-		do
-			echo "&" >>$outfile_tex
-			if [ $html = 1 ]
-			then
-				echo "<td></td>" >>$outfile_html
-			fi
-			(( count_cols+=1 ))
-		done
-		echo "\\\ \hline" >>$outfile_tex
-
-		if [ $html = 1 ]
-		then
-			echo "</tr></table>" >> $outfile_html
-		fi
+		close_line
 	fi
-	echo "\end{tabularx}" >>$outfile_tex
-	echo "\clearpage" >>$outfile_tex
-	line_is_closed=true
-	table_is_closed=true;
 
 	if [ $html = 1 ]
 	then
 		echo "</table>" >> $outfile_html
 	fi
+
+	if [ $latex = 1 ]
+	then
+		echo "\end{tabularx}" >>$outfile_tex
+		echo "\clearpage" >>$outfile_tex
+	fi
+
+	line_is_closed=true
+	table_is_closed=true;
 }
 
+#-----------------------------------------------------
 function reset_all
 {
 	count_lines=0
 	count_cols=0
+#	current_group=nogroup
 }
 
 #-----------------------------------------------------
@@ -119,7 +143,8 @@ function new_page
 		do
 			printf "X|" >>$outfile_tex
 		done
-		echo "}\hline" >>$outfile_tex
+		echo "}" >>$outfile_tex
+		echo "\hline" >>$outfile_tex
 		table_is_closed=false;
 	fi
 }
@@ -236,7 +261,7 @@ function countgrsize
 function process_line
 {
 # args: 1: photo filename, 2: group, 3: name, 4: firstname, 5: bac
-#	echo -e "\n* processing name=$4 $3 current_group=$current_group bac=$5 photo=$1"
+	echo "* processing name=$4 $3 current_group=$current_group  photo=$1 count_cols=$count_cols count_lines=$count_lines"
 
 # SI nouveau groupe, alors il faut fermer la page et faire une nouvelle
 	if [ "$current_group" != "$2" ]
@@ -254,10 +279,10 @@ function process_line
 		if [ "$count_lines" -eq "0" ]
 		then
 			new_page 1 $2
-			if [ $html = 1 ]
-			then
-				echo "<tr>" >>$outfile_html
-			fi
+		fi
+		if [ $html = 1 ]
+		then
+			echo "<tr>" >>$outfile_html
 		fi
 	fi
 	
@@ -322,29 +347,32 @@ function process_line
 	(( count_cols += 1 ))
 
 # if reached max number of columns
-	if [ "$count_cols" -eq "$nb_cols" ];
+	if [ $count_cols = $nb_cols ];
 	then
-		echo "\\\ \hline" >>$outfile_tex
-		line_is_closed=true
-		(( count_lines += 1 ))
-		count_cols=0
-		if [ $html = 1 ]
-		then
-			echo "</td></tr>" >>$outfile_html
-		fi
-	else
-		if [ $latex = 1 ]
-		then
-			echo "&" >>$outfile_tex
-		fi
-		if [ $html = 1 ]
-		then
-			echo "</td>" >>$outfile_html
-		fi
+		close_line
 	fi
+}	
+#		echo "\\\ \hline" >>$outfile_tex
+#		line_is_closed=true
+#		(( count_lines += 1 ))
+#		count_cols=0
+#		if [ $html = 1 ]
+#		then
+#			echo "</td></tr>" >>$outfile_html
+#		fi
+#	else
+#		if [ $latex = 1 ]
+#		then
+#			echo "&" >>$outfile_tex
+#		fi
+#		if [ $html = 1 ]
+#		then
+#			echo "</td>" >>$outfile_html
+#		fi
+#	fi
 
 #	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
-}
+#}
 
 
 # ----------------------------------------------------------------------------
@@ -406,6 +434,7 @@ then
 		cat head_center.txt >>$outfile_tex
 	else
 		echo " -Warning: fichier head_center.txt absent"
+		echo "Trombinoscope" >>$outfile_tex
 	fi
 	echo "}">>$outfile_tex
 
@@ -596,6 +625,7 @@ fi
 # Génération trombi global
 outfile_tex=$outfile2
 outfile_html=$outfile2_html
+reset_all
 process_header 0
 while read line; do
 #     echo "line : $line"
@@ -614,7 +644,8 @@ fi
 
 declare -A groupsize
 countgrsize BUILD/global_list_2.csv
-
+reset_all
+current_group=nogroup
 outfile_tex=$outfile1
 outfile_html=$outfile1_html
 process_header 1
