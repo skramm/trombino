@@ -53,10 +53,13 @@ Pour le recadrage, un outil permettant de le faire facilement est proposé, voir
 
 Dans l'idéal, il faudrait avoir des photos de quelques dizaines de ko.
 
-Le script va générer en sortie deux fichiers pdf, dans le dossier courant:
+Le script peut générer le trombinoscope en deux formats, pdf (via LaTeX, si installé) et en HTML.
+Chaque format va générer deux fichiers, l'un global, avec tous les noms, l'autre classé par groupe:
+* `trombi_global.pdf` (ou `.html`): trombinoscope global, sur plusieurs pages;
+* `trombi_groupes.pdf` (ou `.html`): trombinoscope avec une page par groupe, avec les étudiants faisant partie de ce groupe.
 
-* `trombi_global.pdf`: trombinoscope global, sur plusieurs pages;
-* `trombi_groupes.pdf`: trombinoscope avec une page par groupe, avec les étudiants faisant partie de ce groupe.
+(Le concept de "page" ne s'applique évidemment qu'à la version pdf)
+
 
 ### 3.1 - Données d'entrées du script
 
@@ -79,11 +82,19 @@ $ trombino -h
 (voir ci-dessous).
 
 
+<<<<<<< HEAD
 ### 3.2 - Paramétrage
 * éditer le fichier `entete_ecole.txt` et y mettre le nom de l'établissement, de la promo, etc.
 Sera imprimé dans l'en-tête de gauche.
 * éditer le fichier `entete_annee.txt` et y mettre l'année en cours (ou ce que vous voulez d'autre!).
 Sera imprimé dans l'en-tête de droite.
+=======
+### Paramétrage
+* éditer le fichier `head_left.txt` et y mettre ce que vous souhaitez pour l'en-tête gauche (par exemple, le nom de l'établissement, de la promo, etc.)
+* éditer le fichier `head_right.txt` et y mettre ce que vous souhaitez pour l'en-tête de droite.
+Si ce fichier est absent, l'année courante y sera imprimée.
+
+>>>>>>> master
 
 ### 3.3 - Syntaxe d'appel
 
@@ -97,9 +108,14 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 <br>Par exemple, `-o aaa` produira les deux fichiers `aaa_global.pdf` et `aaa_groupes.pdf`
 * `-c`: pour modifier le nombre de colonnes. La taille des photos est automatiquement ajustée.
 * `-s`: permute nom - prénom
+<<<<<<< HEAD
 * `-f`: permet de spécifier le séparateur de champs du fichier "liste". C'est ',' par défaut.
 On peut le changer pour des ';' avec `-f ";"`.
 A noter que l'usage de l'espace (ASCII 32) est déconseillé, comme il est probable d'avoir des étudiants avec des noms composés.
+=======
+* `-w`: Génère les deux version en web (html)
+* `-x`: pas de génération en pdf (utile si LaTeX pas installé)
+>>>>>>> master
 * `-h`: affiche cette aide
 * `-d`: active le mode "debug", ce qui imprimera le nom du fichier de la photo avec la photo
 (utile en cas d'erreur nom/photo)
