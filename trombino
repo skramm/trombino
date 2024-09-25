@@ -72,9 +72,8 @@ function close_line
 			(( count_cols+=1 ))
 		done
 		echo "</tr>" >> $outfile_html
-		line_is_closed=true
 	fi
-
+	line_is_closed=true
 	count_cols=0
 }
 #-----------------------------------------------------------------------------
@@ -351,28 +350,6 @@ function process_line
 		fi
 	fi
 }
-#		echo "\\\ \hline" >>$outfile_tex
-#		line_is_closed=true
-#		(( count_lines += 1 ))
-#		count_cols=0
-#		if [ $html = 1 ]
-#		then
-#			echo "</td></tr>" >>$outfile_html
-#		fi
-#	else
-#		if [ $latex = 1 ]
-#		then
-#			echo "&" >>$outfile_tex
-#		fi
-#		if [ $html = 1 ]
-#		then
-#			echo "</td>" >>$outfile_html
-#		fi
-#	fi
-
-#	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
-#}
-
 
 # ----------------------------------------------------------------------------
 function close_source
