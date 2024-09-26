@@ -72,9 +72,8 @@ function close_line
 			(( count_cols+=1 ))
 		done
 		echo "</tr>" >> $outfile_html
-		line_is_closed=true
 	fi
-
+	line_is_closed=true
 	count_cols=0
 }
 #-----------------------------------------------------------------------------
@@ -151,6 +150,26 @@ function new_page
 	table_is_closed=false;
 }
 
+#---------------------------------------------
+# args: $1: lastname, $2: firstname
+function processNames()
+{
+	lastname=$1
+	firstname=$2
+
+	if [ $swapfnln = true ]; then
+		tmpvar="$firstname"
+		firstname="$lastname"
+		lastname="$tmpvar"
+	fi
+
+# capitalize Lastname
+	LN=$(echo "$lastname" | sed -e 's/.*/\U&/')
+
+# firstname is lower case, but first letter is uppercase
+	firstname1=${firstname,,}
+	FN=${firstname1^}
+}
 
 #-------------------- Main function for global output file, process one line -------------------------
 function process_line_all
@@ -171,14 +190,14 @@ function process_line_all
 
 	photo="${1%.*}"
 	photoh=$1
-	firstname=$4
-	lastname=$3
 	current_group=$2
+
+	processNames $3 $4
 
 	if [ $latex = 1 ]
 	then
 		echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile_tex
-		echo "$firstname $lastname \newline gr $current_group">>$outfile_tex
+		echo "$FN $LN \newline gr $current_group">>$outfile_tex
 		if [ $debug_mode = true ]
 		then
 			echo "- $photoh" >>$outfile_tex
@@ -187,7 +206,7 @@ function process_line_all
 	if [ $html = 1 ]
 	then
 		echo "<td><img src='$photos$photoh'>" >>$outfile_html
-		echo "<p>$firstname $lastname <br> $current_group">>$outfile_html
+		echo "<p>$FN $LN <br> $current_group">>$outfile_html
 		if [ $debug_mode = true ]
 		then
 			echo "- $photoh" >>$outfile_html
@@ -294,31 +313,17 @@ function process_line
 	photo="${1%.*}"
 	photoh=$1
 
-	firstname=$4
-	lastname=$3
-
-	if [ $swapfnln = true ]; then
-		tmpvar="$firstname"
-		firstname="$lastname"
-		lastname="$tmpvar"
-	fi
-
-# capitalize Lastname
-	LN=$(echo "$lastname" | tr [:lower:] [:upper:])
-
-# firstname is lower case, but first letter is uppercase
-	firstname1=${firstname,,}
-	firstname2=${firstname1^}
+	processNames $3 $4
 
 	if [ $latex = 1 ]
 	then
 		echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile_tex
-		echo "$LN $firstname2" >>$outfile_tex
+		echo "$FN $LN" >>$outfile_tex
 	fi
 	if [ $html = 1 ]
 	then
 		echo "<td><img src='$photos$photoh'><br>" >>$outfile_html
-		echo "<p>$LN $firstname2" >>$outfile_html
+		echo "<p>$FN $LN" >>$outfile_html
 	fi
 
 # print photo filename in debug mode
@@ -351,28 +356,6 @@ function process_line
 		fi
 	fi
 }
-#		echo "\\\ \hline" >>$outfile_tex
-#		line_is_closed=true
-#		(( count_lines += 1 ))
-#		count_cols=0
-#		if [ $html = 1 ]
-#		then
-#			echo "</td></tr>" >>$outfile_html
-#		fi
-#	else
-#		if [ $latex = 1 ]
-#		then
-#			echo "&" >>$outfile_tex
-#		fi
-#		if [ $html = 1 ]
-#		then
-#			echo "</td>" >>$outfile_html
-#		fi
-#	fi
-
-#	echo "count_cols=$count_cols count_lines =$count_lines  count_pages=$count_pages"
-#}
-
 
 # ----------------------------------------------------------------------------
 function close_source
@@ -628,7 +611,7 @@ if [ ! -f "$header_file" ];
 		echo " -Utilisation de l'en-tete par défaut $header_file"
 	fi
 else
-	echo " -!!! Utilisation du fichier d'en tête local !!!"
+	echo " -Warning: LaTeX: utilisation du fichier d'en tête local '$header_file'"
 fi
 
 # Génération trombi global
