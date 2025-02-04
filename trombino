@@ -450,9 +450,9 @@ function latex_build
 	echo "* Etape 2: démarrage pdflatex, fichier $outfile_tex"
 	pdflatex -interaction=batchmode $outfile_tex 1>pdflatex.stdout 2>pdflatex.stderr
 	if [ $? != 0 ]; then
-		echo " -Erreur de compilation, voir fichier log"
+		echo " -LaTeX: erreur de compilation, voir fichier log BUILD/pdflatex.stderr"
 	else
-		echo " -Compilation: ok"
+		echo " -LaTeX: compilation: ok"
 	fi
 
 	if [ -f $outfile_tex.pdf ]; then
