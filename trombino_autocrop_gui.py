@@ -24,7 +24,7 @@ import pathlib
 import tkinter
 from pathlib import Path
 
-appname="guicrop:"
+appname="trombino_autocrop_gui:"
 img_src=None
 img2=None
 im_w=200
