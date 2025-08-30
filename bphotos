@@ -7,16 +7,22 @@ set +x
 # a wrapper over Imagemagick to process a set of photos with basic adjustements:
 # convert to B&W, reduce size, brightness and contrast
 
-# args:
-# -1: input folder
-# -2: output folder (will be created)
-# -3: command: one of these
-# R: reduce size, requires a 4th arg: reducing amount (%)
+function usage
+{
+echo " args:"
+echo " -1: input folder"
+echo " -2: output folder (will be created)"
+echo " -3: command: one of these:"
+echo "  - R: reduce size, requires a 4th arg: reducing amount (%)"
+echo "   (value '50' will produce an image half the orignal size)"
+echo "  - W: convert to B&W"
+echo "  - R: brightness and contrast (2 more values needed)"
 
-# Examples:
-# $ bphoto src/ dst/ R 20  reduce image size by 20%
-# $ bphoto src/ dst/ W     convert to B&W
-# $ bphoto src/ dst/ B 50 10 
+echo " Examples:"
+echo " $ bphoto src dst R 20"
+echo " $ bphoto src dst W"
+echo " $ bphoto src dst B 50 10"
+}
 
 #========================================
 function resize
@@ -24,7 +30,7 @@ function resize
 	mkdir -p $2
 	rm $2/*
 	for file in $1/*; do
-		echo "traitement de $file"
+		echo "processing file $file"
 		convert $file -resize $3% $2/`basename $file`;
 	done
 }
@@ -35,7 +41,7 @@ function bright
 	mkdir -p $2
 	rm $2/*
 	for file in $1/*; do
-		echo "traitement de $file"	
+		echo "processing file $file"	
 		convert $file -brightness-contrast $3x$4 $2/`basename $file`;
 	done
 }
@@ -46,7 +52,7 @@ function bw
 	rm $2/*
 
 	for file in $1/*; do
-		echo "traitement de $file"
+		echo "processing file $file"
 		convert $file -set colorspace Gray -separate -average $2/`basename $file`;
 	done
 }
@@ -55,8 +61,17 @@ function bw
 #========================================
 # START
 
+which convert >/dev/null
+isAvailable=$?
+if ! [ $isAvailable = 0 ]
+then
+	echo "Error, program 'convert' is not available in the path, ImageMagick is required"
+	exit 2
+fi
+
 if [ "$#" -lt 3 ]; then
 	echo " -3 arguments mininum"
+	usage
 	exit 1
 fi
 
@@ -72,7 +87,7 @@ dst=${dstd%/}
 
 if [ "$src" = "$dst" ]
 then
-	echo " -Erreur, dossier source et destination ne peuvent pas être les mêmes"
+	echo " -Error, source and destination floder cant be the same"
 	exit 2
 fi
 
@@ -83,7 +98,7 @@ while [ -n "$3" ]; do # while loop starts
 		echo "R"
 		if [ "$#" -lt 4 ];
 		then
-			echo " -commande 'R': nécessite un taux de réduction"
+			echo " -command 'R': requires a reduction rate"
 		else
 			resize $src $dst $4
 			exit 0
@@ -101,28 +116,16 @@ while [ -n "$3" ]; do # while loop starts
 		if [ "$#" -lt 5 ];
 		then
 			echo "nb=$#"
-			echo " -commande 'B' requires resize brightness and contrast values"
+			echo " -command 'B' requires resize brightness and contrast values"
 		else
 			bright $src $dst $4 $5
 			exit 0
 		fi
 		shift
 		;;
-	*) echo " -Erreur: commande $3 inconnue"; exit 1 ;;
+	*) echo " -Error: invalid command $3"; usage; exit 1 ;;
 	esac
 	shift
 done
 
-
-
-
-#crop src out1
-#resize out1 out2
-
-#bright raw out1
-#bw out1 out2
-#resize "$1" "$2"
-
-
-exit
 
