@@ -200,7 +200,7 @@ function process_line_all
 		echo "$FN $LN \newline gr $current_group">>$outfile_tex
 		if [ $debug_mode = true ]
 		then
-			echo "- $photoh" >>$outfile_tex
+			echo "- \verb|$photoh|" >>$outfile_tex
 		fi
 	fi
 	if [ $html = 1 ]
@@ -628,6 +628,8 @@ close_source
 if [ $latex = 1 ]
 then
 	outfile_tex=${out_fn}_global
+	echo "TMP out_fn=$out_fn"
+	echo "TMP outfile_tex=$outfile_tex"
 	latex_build
 fi
 

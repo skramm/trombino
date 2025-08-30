@@ -135,7 +135,7 @@ $ ./trombino -c 5
 ### 5.1 - Introduction
 L'un des problèmes que l'on rencontre avec cette approche est le fait qu'il nécessite en pratique un "cropping" des photos.
 En effet, en général le cadrage fait qu'il est peu pratique d'avoir dès la prise de vue un cadrage type "photo d'identité".
-Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux (et donc, non, on oublie).
+Le cropping peut se faire à la main, photo par photo, à l'aide d'un outil ad hoc, mais c'est évidemment fastidieux.
 On peut aussi l'automatiser via un script (utilisant par exemple [imagemagick](https://imagemagick.org/)) qui prend chaque photo et lui applique un cropping fixe, mais il faut alors prédéterminer la bonne "bounding box", ce qui prend du temps.
 Sans compter que on aura toujours des étudiants qui sont un peu trop à gauche, un peu trop à droite, et donc le cropping identique pour toutes les photos va générer soit des "coupages de têtes", soit des images avec un cadrage un peu trop "large".
 
@@ -148,6 +148,11 @@ Pour Opencv, l'installation est assez facile, via:
 $ pip install opencv-python
 ```
 Ceci a été testé avec la version 4.5.5, mais devrait aussi fonctionner avec des versions 3.
+
+Il faudra aussi installer un autre paquet Python:
+```
+pip install opencv-contrib-python --upgrade
+```
 
 ### 5.3 - Utilisation
 
@@ -193,7 +198,7 @@ De même pour la couleur:
 les photos en N&B sont en général largement suffisantes pour reconnaitre les personnes, il est donc souvent inutile d'inclure des photos en couleur dans le trombi.
 Cela allègera le poids du pdf final.
 
-Enfin, les photos peuvent avoir une luminosité faible ou un constraste insuffisant, qui risque de rendre les photos peu lisibles en impression.
+Enfin, les photos peuvent avoir une luminosité faible ou un contraste insuffisant, qui risque de rendre les photos peu lisibles en impression.
 
 Le programme `bphotos` permet de corriger ces défauts de façon rapide.
 On donne en argument:
@@ -213,7 +218,7 @@ Exemples:
 - `$ bphotos src dst W` va convertir les photos présentes dans le dossier `src` en N&B et les placer dans le dossier `dst`
 - `$ bphotos src dst B 20 10` va augmenter la luminosité de 20% et le contraste de 10%
 
-Si vous avez un nombre de photos considérables, et en particulier pour la modification de luminosité et contraste, il pourra être pertinent de faire d'abord des essais sur un nombre réduit de phots et de trouver de façon empirique les bon réglages.
+Si vous avez un nombre de photos considérables, et en particulier pour la modification de luminosité et contraste, il pourra être pertinent de faire d'abord des essais sur un nombre réduit de photos et de trouver de façon empirique les bons réglages.
 
 
   
