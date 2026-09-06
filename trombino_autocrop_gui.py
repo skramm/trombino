@@ -138,9 +138,14 @@ def saveCroppedImage( face ):
 	#cv2.rectangle(img, (x0, y0), (x0 + w0, y0 + h0), (0, 255, 0), 4)
 
 	print( "cropped:", x0, y0, w0, h0, "name=", dir_out+"/"+fname )
-	if (x0<0 or y0<0):
-		print( appname, "Failure, negatives coordinates, restart with -m switch" )
-		exit(6)
+#	if (x0<0 or y0<0):
+#		print( appname, "Failure, negatives coordinates, restart with -m switch" )
+#		exit(6)
+
+	if x0<0:
+		x0=0
+	if y0<0:
+		y0=0
 	
 	img_out = gray_image[y0:y0+h0,x0:x0+w0]
 	print( "im size=", img_out.size, " shape=", img_out.shape )

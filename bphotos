@@ -16,7 +16,7 @@ echo " -3: command: one of these:"
 echo "  - R: reduce size, requires a 4th arg: reducing amount (%)"
 echo "   (value '50' will produce an image half the orignal size)"
 echo "  - W: convert to B&W"
-echo "  - R: brightness and contrast (2 more values needed)"
+echo "  - B: brightness and contrast (2 more values needed)"
 
 echo " Examples:"
 echo " $ bphoto src dst R 20"

@@ -68,6 +68,10 @@ if( face.shape[0] != 1 ):
 deltax=face[0][2]/3
 deltay=face[0][2]/2
 x0 = int( face[0][0] - deltax   )
+if x0<0:
+	x0=0
+if y0<0:
+	y0=0
 y0 = int( face[0][1] - deltay   )
 w0 = int( face[0][2] + 2*deltax )
 h0 = int( face[0][3] + 2*deltay )

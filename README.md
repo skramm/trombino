@@ -44,7 +44,7 @@ Ceci va copier les exécutables dans `/usr/local/bin/` et le fichier de configur
 ## 3 - Utilisation
 
 Il faut avoir une liste des personnes, et prendre une photo par personne, **dans l'ordre de la liste**.
-En cas d'absence, il faut prendre une photo "vide", pour conserver l'ordre.
+En cas d'absence, il faut prendre une photo vide, pour conserver l'ordre.
 
 Ensuite, un petit traitement batch des photos peut être réalisé (recadrage, augmentation de la luminosité, conversion en N&B, etc).
 Ceci se fait facilement avec des outils comme [Imagemagik](https://imagemagick.org/), mais ce package propose un script permettant de faire ça rapidement.
@@ -103,7 +103,7 @@ Des valeurs par défaut sont prévues, mais on peut passer des options pour les 
 * `-f`: permet de spécifier le séparateur de champs du fichier "liste". C'est ',' par défaut.
 On peut le changer pour des ';' avec `-f ";"`.
 A noter que l'usage de l'espace (ASCII 32) est déconseillé, comme il est probable d'avoir des étudiants avec des noms composés.
-* `-w`: Génère les deux version en web (html)
+* `-w`: Génère les deux versions en web (html)
 * `-x`: pas de génération en pdf (utile si LaTeX pas installé)
 * `-h`: affiche cette aide
 * `-d`: active le mode "debug", ce qui imprimera le nom du fichier de la photo avec la photo
@@ -168,7 +168,7 @@ Par exemple:
 $ autocrop src dst
 ```
 
-Ce programe est un script bash qui lance pour chaque fichier du dossier de photos le programme Python `trombino_autocrop_gui.py`.
+Ce programme est un script bash qui lance pour chaque fichier du dossier de photos le programme Python `trombino_autocrop_gui.py`.
 Ce dernier va lancer lancer une cascade de classifieurs pour tenter de trouver un visage
 (voir
 https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html
@@ -178,7 +178,7 @@ Si les paramètres par défaut ne trouvent pas de visage, alors une interface gr
 Des sliders permettent d'ajuster les paramètres, le plus important étant l'échelle ("scale").
 Une fois un visage trouvé, il faut alors appuyer sur "espace" pour sauvegarder l'image recadrée.
 
-Dans le cas où il s'agit d'une photo "vide", un appui sur ESC va sauvegarder la photo telle quelle.
+Dans le cas où il s'agit d'une photo vide, un appui sur ESC va sauvegarder la photo telle quelle.
 
 
 ## 6 - Script de prétraitement par lot des photos

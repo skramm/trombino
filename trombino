@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# S. Kramm - 2022-2023
+# S. Kramm - 2022-2026
 # https://github.com/skramm/trombino
 # création automatique de trombinoscope
 
-version=1.3.0
+version=1.3.1
 # 2024-09-20: ajout version HTML (switch -w) et ajout taille des groupes
 
 
@@ -197,14 +197,13 @@ function process_line_all
 	if [ $latex = 1 ]
 	then
 		echo "\includegraphics[width=$width\textwidth]{$photo} \newline" >>$outfile_tex
-		echo "$FN $LN \newline gr $current_group">>$outfile_tex
-		if [ $debug_mode = true ]
-		then
+		echo "$FN $LN \newline gr $current_group" >>$outfile_tex
+		if [ $debug_mode = true ]; then
+			echo "FN=-$FN- LN=-$LN-"
 			echo "- \verb|$photoh|" >>$outfile_tex
 		fi
 	fi
-	if [ $html = 1 ]
-	then
+	if [ $html = 1 ]; then
 		echo "<td><img src='$photos$photoh'>" >>$outfile_html
 		echo "<p>$FN $LN <br> $current_group">>$outfile_html
 		if [ $debug_mode = true ]
@@ -216,14 +215,11 @@ function process_line_all
 
 	(( count_cols += 1 ))
 
-	if [ "$count_cols" -eq "$nb_cols" ]
-	then
-		if [ $latex = 1 ]
-		then
+	if [ "$count_cols" -eq "$nb_cols" ]; then
+		if [ $latex = 1 ]; then
 			echo "\\\ \hline" >>$outfile_tex
 		fi
-		if [ $html = 1 ]
-		then
+		if [ $html = 1 ]; then
 			echo "</tr>" >>$outfile_html
 		fi
 
@@ -231,10 +227,8 @@ function process_line_all
 		(( count_lines += 1 ))
 		count_cols=0
 
-		if [ $latex = 1 ]
-		then
-			if [ $count_lines -eq $max_lines ]
-			then
+		if [ $latex = 1 ]; then
+			if [ $count_lines -eq $max_lines ]; then
 				echo "\end{tabularx}" >>$outfile_tex
 				echo "\clearpage" >>$outfile_tex
 				count_lines=0

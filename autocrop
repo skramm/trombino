@@ -17,8 +17,7 @@ fi
 src_dir=$1
 dst_dir=$2
 
-if [ "$1" = "-m" ]
-then
+if [ "$1" = "-m" ]; then
 	modemanual=$1
 	src_dir=$2
 	if [ "$#" -lt 3 ]; then
@@ -33,8 +32,7 @@ ddir=${dst_dir%/}
 sdir=${src_dir%/}
 
 
-if [ "$ddir" = "$sdir" ]
-then
+if [ "$ddir" = "$sdir" ]; then
 	echo "-$appname: error, source and destination folder cannot be the same"
 	exit 2
 fi
@@ -47,8 +45,7 @@ do
 	echo "-$appname: processing file $fn"
 	trombino_autocrop_gui.py $modemanual "$fn" "$ddir" 
 	errval=$?
-	if ! [ $errval = 0 ]
-	then
+	if ! [ $errval = 0 ]; then
 		echo "-$appname: failure, cropping app returned $errval, stopping"
 		exit 1
 	fi
